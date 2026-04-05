@@ -25,7 +25,6 @@ set build_name "hls_video_preprocess"
 set build_output "$build_root/$build_name"
 file mkdir $build_root
 file mkdir $build_output
-config_build -output_dir "$build_output"
 puts "Build output redirected to: $build_output"
 
 # ============ OpenCV环境配置部分 ============
@@ -47,13 +46,13 @@ set ::env(LD_LIBRARY_PATH) "$opencv_lib:$::env(LD_LIBRARY_PATH)"
 
 # ============ HLS项目配置部分 ============
 # 打开或创建HLS项目，项目命名
-open_project -reset video_preprocess_prj
+open_project -reset "$build_output/video_preprocess_prj"
 
 # 设置顶层函数名为（即要综合的主函数）
 set_top video_preprocess
 
 # 添加设计源文件cpp到项目中（从src目录）
-set common_cflags "-I $common_inc -I $vision_inc -I $video_inc -I $inc_dir -I ./ -D__SDSVHLS__ -DXF_USE_AXI4=1 -std=c++14"
+set common_cflags "-I $inc_dir -I ./ -D__SDSVHLS__ -DXF_USE_AXI4=1 -std=c++14"
 
 add_files "$src_dir/top.cpp" -cflags "$common_cflags"
 # 添加头文件h到项目中（从src目录）
@@ -70,28 +69,39 @@ open_solution -reset solution1
 set_part {xc7z020clg400-1}
 
 #创建时钟约束，设置时钟周期为10ns（即100MHz频率）
-create_clock -period 3.3 
+create_clock -period 10
 
 # ============ 综合优化配置 (PYNQ-Z2 资源约束) ============
 config_interface -m_axi_max_widen_bitwidth 128
 config_rtl -reset all -reset_level low
-config_compile -name_propagation
 
 # ============ HLS流程执行部分 ============
+set run_csim 0
+set run_cosim 0
+set run_export 0
+
 # 运行C仿真（CSIM），验证算法功能正确性
-csim_design -ldflags "-L$opencv_lib -Wl,-rpath,$opencv_lib -lopencv_core -lopencv_imgproc -lopencv_imgcodecs -lopencv_video"
+if {$run_csim} {
+    csim_design -ldflags "-L$opencv_lib -Wl,-rpath,$opencv_lib -lopencv_core -lopencv_imgproc -lopencv_imgcodecs -lopencv_video"
+}
 
 # 运行C综合（CSYNTH），将C++代码转换为RTL硬件描述
 csynth_design
 
 # 运行C/RTL协同仿真（COSIM），验证综合后RTL与C++行为一致性
-cosim_design -ldflags "-L$opencv_lib -Wl,-rpath,$opencv_lib -lopencv_core -lopencv_imgproc -lopencv_imgcodecs -lopencv_video"
+if {$run_cosim} {
+    cosim_design -ldflags "-L$opencv_lib -Wl,-rpath,$opencv_lib -lopencv_core -lopencv_imgproc -lopencv_imgcodecs -lopencv_video"
+}
 
 #导出综合级RTL（仅逻辑综合，不布局布线，用于常规Vivado IP集成）
-export_design -flow syn -rtl verilog
+if {$run_export} {
+    export_design -flow syn -rtl verilog
+}
 
 #导出实现级RTL（含布局布线，用于精确时序/功耗评估，耗时较长）
-export_design -flow impl -rtl verilog
+if {$run_export} {
+    export_design -flow impl -rtl verilog
+}
 
 # 退出Vitis HLS工具
 exit

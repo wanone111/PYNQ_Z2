@@ -1,26 +1,25 @@
-#ifndef TOP_H
-#define TOP_H
+#ifndef PYNQ_TOP_H_
+#define PYNQ_TOP_H_
 
 #include <ap_int.h>
-
-#include "common/xf_common.hpp"
-#include "common/xf_utility.hpp"
-#include "imgproc/xf_crop.hpp"
-#include "imgproc/xf_cvt_color.hpp"
-#include "imgproc/xf_threshold.hpp"
+#include <ap_axi_sdata.h>
+#include <hls_stream.h>
 
 #include "video_params.h"
 
-extern "C" {
-void vision_preprocess_accel(ap_uint<INPUT_PTR_WIDTH> *img_in,
-                             ap_uint<OUTPUT_PTR_WIDTH> *img_out,
-                             int rows,
-                             int cols,
-                             int roi_x,
-                             int roi_y,
-                             int roi_w,
-                             int roi_h,
-                             ap_uint<8> thresh_val);
-}
+typedef ap_axiu<24, 1, 1, 1> axi_pixel_t;
 
-#endif
+void video_preprocess(
+	hls::stream<axi_pixel_t>& src,
+	hls::stream<axi_pixel_t>& dst,
+	ap_uint<16> rows,
+	ap_uint<16> cols,
+	ap_uint<16> roi_x,
+	ap_uint<16> roi_y,
+	ap_uint<16> roi_w,
+	ap_uint<16> roi_h,
+	ap_uint<8> gray_en,
+	ap_uint<8> threshold_en,
+	ap_uint<8> threshold_val);
+
+#endif  // PYNQ_TOP_H_

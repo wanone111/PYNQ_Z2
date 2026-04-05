@@ -1,24 +1,24 @@
-#ifndef VIDEO_PARAMS_H
-#define VIDEO_PARAMS_H
+#ifndef PYNQ_VIDEO_PARAMS_H_
+#define PYNQ_VIDEO_PARAMS_H_
 
 #include <ap_int.h>
 
-// PYNQ-Z2 输入分辨率上限（可按赛题调整）
-#define MAX_HEIGHT 720
-#define MAX_WIDTH 1280
+// Compile-time bounds for HLS buffer sizing.
+static const int MAX_WIDTH = 1280;
+static const int MAX_HEIGHT = 720;
 
-#define INPUT_PTR_WIDTH 32
-#define OUTPUT_PTR_WIDTH 8
+struct VideoControl {
+	ap_uint<16> rows;
+	ap_uint<16> cols;
 
-#define NPPCX XF_NPPC1
-#define IN_TYPE XF_8UC3
-#define OUT_TYPE XF_8UC1
+	ap_uint<16> roi_x;
+	ap_uint<16> roi_y;
+	ap_uint<16> roi_w;
+	ap_uint<16> roi_h;
 
-#define XF_CV_DEPTH_IN 2
-#define XF_CV_DEPTH_GRAY 2
-#define XF_CV_DEPTH_OUT 2
+	ap_uint<8> gray_en;
+	ap_uint<8> threshold_en;
+	ap_uint<8> threshold_val;
+};
 
-// 默认阈值用于 testbench 快速验证
-static const ap_uint<8> kDefaultThreshold = 128;
-
-#endif
+#endif  // PYNQ_VIDEO_PARAMS_H_
