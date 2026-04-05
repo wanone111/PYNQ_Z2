@@ -5,6 +5,7 @@
 #include <ap_axi_sdata.h>
 #include <hls_stream.h>
 
+#include "roi.h"
 #include "video_params.h"
 
 typedef ap_axiu<24, 1, 1, 1> axi_pixel_t;

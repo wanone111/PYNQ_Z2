@@ -55,6 +55,7 @@ set_top video_preprocess
 set common_cflags "-I $inc_dir -I ./ -D__SDSVHLS__ -DXF_USE_AXI4=1 -std=c++14"
 
 add_files "$src_dir/top.cpp" -cflags "$common_cflags"
+add_files "$src_dir/roi.cpp" -cflags "$common_cflags"
 # 添加头文件h到项目中（从src目录）
 #add_files ../src//include/
 
@@ -76,8 +77,8 @@ config_interface -m_axi_max_widen_bitwidth 128
 config_rtl -reset all -reset_level low
 
 # ============ HLS流程执行部分 ============
-set run_csim 0
-set run_cosim 0
+set run_csim 1
+set run_cosim 1
 set run_export 0
 
 # 运行C仿真（CSIM），验证算法功能正确性
