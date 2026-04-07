@@ -2,47 +2,37 @@
 
 本目录用于承接赛题中的 PYNQ 侧工作，目标是完成前端视频流预处理并与 310B 协同。
 
-## 1. 角色分工对齐
+## 1. 当前目录结构（已对齐仓库现状）
+
+- HLS 工程主路径: [hls/HLS_Proj/ROI_Test](hls/HLS_Proj/ROI_Test)
+- PS 侧脚本路径: [ps](ps)
+- PL 侧比特流说明: [pl/README.md](pl/README.md)
+
+当前 HLS 可综合代码入口：
+
+- 顶层声明: [hls/HLS_Proj/ROI_Test/include/top.h](hls/HLS_Proj/ROI_Test/include/top.h)
+- 视频参数: [hls/HLS_Proj/ROI_Test/include/video_params.h](hls/HLS_Proj/ROI_Test/include/video_params.h)
+- 顶层实现: [hls/HLS_Proj/ROI_Test/src/top.cpp](hls/HLS_Proj/ROI_Test/src/top.cpp)
+- Testbench: [hls/HLS_Proj/ROI_Test/tb/tb_top.cpp](hls/HLS_Proj/ROI_Test/tb/tb_top.cpp)
+- HLS 脚本: [hls/HLS_Proj/ROI_Test/scripts/run_hls.tcl](hls/HLS_Proj/ROI_Test/scripts/run_hls.tcl)
+
+## 2. PYNQ 与 310B 侧分工
 
 - PYNQ-Z2: 采集接口适配、轻量预处理、ROI 流控、稳定输出
 - 310B: DVPP 几何整形、AIPP 数学预处理、NPU 推理、业务事件判定
 
-原则: 只在一侧执行一次缩放和归一化，避免重复计算与带宽浪费。
+原则：只在一侧执行一次缩放和归一化，避免重复计算与带宽浪费。
 
-## 2. 当前实现骨架
+## 3. 当前 HLS 内核能力
 
-已落地的最小可综合骨架在 HLS 子目录：
+当前顶层函数为 video_preprocess，接口在 [hls/HLS_Proj/ROI_Test/include/top.h](hls/HLS_Proj/ROI_Test/include/top.h)。
 
-- 头文件参数: [hls/include/video_params.h](hls/include/video_params.h)
-- ROI 模块头文件: [hls/include/roi.h](hls/include/roi.h)
-- 顶层接口声明: [hls/include/top.h](hls/include/top.h)
-- 顶层函数实现: [hls/src/top.cpp](hls/src/top.cpp)
-- ROI 模块实现: [hls/src/roi.cpp](hls/src/roi.cpp)
-- C 仿真测试: [hls/tb/tb_top.cpp](hls/tb/tb_top.cpp)
-- HLS 脚本: [hls/scripts/run_hls.tcl](hls/scripts/run_hls.tcl)
+输入输出：
 
-当前 HLS 内核功能:
+- src: AXI4-Stream 视频输入（24-bit RGB）
+- dst: AXI4-Stream 视频输出（24-bit RGB）
 
-- AXI4-Stream 输入输出
-- 运行时 ROI 裁剪窗口控制
-- ROI 内灰度转换
-- ROI 内二值化阈值处理
-- ROI 外区域清零输出
-
-ROI 已经从顶层逻辑中拆出，成为独立模块，便于后续继续替换成更复杂的裁剪、缩放或 letterbox 策略。
-
-该骨架用于先打通接口与时序，不绑定具体模型。
-
-## 3. 顶层接口说明
-
-函数名: video_preprocess
-
-输入输出:
-
-- src: AXI4-Stream 视频输入 (24-bit RGB)
-- dst: AXI4-Stream 视频输出 (24-bit RGB)
-
-控制参数 (AXI-Lite):
+控制参数（AXI-Lite）：
 
 - rows, cols: 当前帧分辨率
 - roi_x, roi_y, roi_w, roi_h: ROI 起点和尺寸
@@ -50,94 +40,67 @@ ROI 已经从顶层逻辑中拆出，成为独立模块，便于后续继续替�
 - threshold_en: 二值化开关
 - threshold_val: 二值化阈值
 
-## 4. 团队开发建议
+当前实现行为：
 
-第一阶段 (已完成):
+- 支持运行时 ROI 窗口控制
+- ROI 内支持灰度转换
+- ROI 内可选二值化阈值处理
+- ROI 外区域输出清零
 
-- 完成可综合骨架和 testbench 闭环
+注：编译期最大分辨率约束定义在 [hls/HLS_Proj/ROI_Test/include/video_params.h](hls/HLS_Proj/ROI_Test/include/video_params.h)（MAX_WIDTH=1280, MAX_HEIGHT=720）。
 
-第二阶段 (进行中):
+## 4. PS 侧桥接脚本
 
-- 将 ROI 外清零改为可配置模式 (透传/清零)
-- 补充基础滤波算子 (median 或 gaussian)
+USB 摄像头到 PL 的桥接脚本：
 
-第三阶段 (待开始):
+- 主脚本: [ps/usb_camera_to_pl.py](ps/usb_camera_to_pl.py)
+- Jupyter 版本: [ps/usb_camera_to_pl.ipynb](ps/usb_camera_to_pl.ipynb)
+- 摄像头预检脚本: [ps/usb_camera.py](ps/usb_camera.py)
 
-- 按赛题场景加入官方算子流水 (resize/cvtColor/gamma)
-- 与 310B 侧接口协议联调
-
-## 5. USB 摄像头到 PL 数据通路
-
-推荐的数据路径是:
-
-USB 摄像头 -> PYNQ 侧 Linux/OpenCV 采集 -> AXI4-Stream 打包 -> PL HLS 内核 video_preprocess -> 输出给后续 PL/PS 链路
-
-实现上，摄像头采集与 VDMA/AXI-Stream 传输不放在 HLS 内核里处理，而是由 PS 侧驱动把每帧图像喂给 PL。PL 侧只做像素流水处理，避免把设备控制逻辑和图像流水混在一起。
-
-这意味着当前 HLS 内核的职责是“接收一帧流、按 ROI 规则处理、再送出一帧流”，USB 摄像头采集本身属于 PS 侧适配层。
-
-PS 侧桥接脚本已经补齐骨架：
-
-- [ps/usb_camera_to_pl.py](ps/usb_camera_to_pl.py)
-
-该脚本完成三件事：
+[ps/usb_camera_to_pl.py](ps/usb_camera_to_pl.py) 当前支持：
 
 - 从 USB 摄像头读取 BGR 帧
-- 将图像打包成 32-bit 像素流，便于与 PL 链路对接
-- 在带 overlay 的情况下把控制参数写入 HLS IP，并通过 DMA/VDMA 完成发送与结果回读
+- 将图像打包为 32-bit RGB 数据流（便于 DMA/VDMA 对接）
+- 向 video_preprocess IP 写控制寄存器
+- dry-run 模式（无板卡环境先验证采集和打包流程）
+- 每秒统计 fps、桥接耗时、发送失败与丢帧估计
 
-当前桥接脚本还提供每秒统计：
+## 5. 运行方式
 
-- 采集帧率
-- 发送帧率
-- 回读帧率
-- 读帧失败数
-- 发送失败数
-- 丢帧估计值
-
-当前脚本支持 dry-run，可在普通 Linux 主机上先验证采集和打包逻辑；上板后再把 overlay 和 DMA 名称接到真实工程。
-
-## 6. 预期效果
-
-- ROI 拆分后，主核更清晰，后续替换裁剪或缩放策略时不需要改动顶层接口。
-- USB 摄像头到 PL 的链路保持流式处理，减少 CPU 侧中间缓存与重复拷贝。
-- 以当前实现规模看，PL 侧资源开销很低，适合先做稳定联调和功能闭环。
-- 后续接入官方算子后，仍可保持单帧单流、单次处理的低延迟特征。
-- USB 摄像头采集与 PL 运算分层后，团队可以独立调试采集链和 FPGA 链，减少联调耦合。
-- DMA 回读链补齐后，可以直接验证 PL 侧输出是否与 ROI 和灰度/阈值控制一致。
-
-## 7. 运行方式
-
-参考本机环境经验，优先使用:
+在本机环境下，建议通过 vitis-run 启动 HLS：
 
 ```bash
-vitis-run --mode hls --tcl hls/scripts/run_hls.tcl
+cd /home/bb/competition_ws/pynq_z2
+vitis-run --mode hls --tcl hls/HLS_Proj/ROI_Test/scripts/run_hls.tcl
 ```
 
-PS 侧桥接脚本示例:
+PS 侧 dry-run 示例：
 
 ```bash
+cd /home/bb/competition_ws/pynq_z2
 python3 ps/usb_camera_to_pl.py --dry-run --camera 0 --width 640 --height 480 --show
 ```
 
-Jupyter 版本入口:
-
-- [ps/usb_camera_to_pl.ipynb](ps/usb_camera_to_pl.ipynb)
-
-摄像头预检模式:
+摄像头预检示例：
 
 ```bash
+cd /home/bb/competition_ws/pynq_z2
 python3 ps/usb_camera_to_pl.py --probe --camera 0
 ```
 
-上板后示例:
+上板运行示例（按实际 bit/hwh 与 IP 名称调整）：
 
 ```bash
-python3 ps/usb_camera_to_pl.py --overlay <overlay.bit> --camera 0 --width 640 --height 480 --roi 0.1,0.1,0.8,0.8
+cd /home/bb/competition_ws/pynq_z2
+python3 ps/usb_camera_to_pl.py --overlay <overlay.bit> --ip-name video_preprocess --camera 0 --width 640 --height 480 --roi 0.1,0.1,0.8,0.8
 ```
 
-如需 GUI 调试，可在 Vitis HLS 中直接打开脚本对应工程。
+## 6. 联调建议
 
-## 8. 参考
+- 先用 HLS testbench 验证 ROI/灰度/阈值行为，再上板联调。
+- 先跑 dry-run，再切换 overlay + DMA 实链路，便于快速定位问题层级。
+- PL 侧 bit/hwh 文件配对规则参考 [pl/README.md](pl/README.md)。
 
-- [AMD Vitis Libraries](https://github.com/Xilinx/Vitis_Libraries)
+## 7. 参考
+
+- AMD Vitis Libraries: [https://github.com/Xilinx/Vitis_Libraries](https://github.com/Xilinx/Vitis_Libraries)
