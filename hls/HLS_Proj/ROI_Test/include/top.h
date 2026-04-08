@@ -18,6 +18,11 @@ void video_preprocess(
 	ap_uint<16> roi_y,
 	ap_uint<16> roi_w,
 	ap_uint<16> roi_h,
+	ap_uint<16> wb_r_gain,
+	ap_uint<16> wb_g_gain,
+	ap_uint<16> wb_b_gain,
+	ap_uint<8> gamma_mode,
+	ap_uint<8> denoise_strength,
 	ap_uint<8> gray_en,
 	ap_uint<8> threshold_en,
 	ap_uint<8> threshold_val);

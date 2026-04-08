@@ -12,7 +12,11 @@
 
 - 顶层声明: [hls/HLS_Proj/ROI_Test/include/top.h](hls/HLS_Proj/ROI_Test/include/top.h)
 - 视频参数: [hls/HLS_Proj/ROI_Test/include/video_params.h](hls/HLS_Proj/ROI_Test/include/video_params.h)
+- ROI 接口: [hls/HLS_Proj/ROI_Test/include/roi.h](hls/HLS_Proj/ROI_Test/include/roi.h)
+- ISP 接口: [hls/HLS_Proj/ROI_Test/include/isp.h](hls/HLS_Proj/ROI_Test/include/isp.h)
 - 顶层实现: [hls/HLS_Proj/ROI_Test/src/top.cpp](hls/HLS_Proj/ROI_Test/src/top.cpp)
+- ROI 实现: [hls/HLS_Proj/ROI_Test/src/roi.cpp](hls/HLS_Proj/ROI_Test/src/roi.cpp)
+- ISP 实现: [hls/HLS_Proj/ROI_Test/src/isp.cpp](hls/HLS_Proj/ROI_Test/src/isp.cpp)
 - Testbench: [hls/HLS_Proj/ROI_Test/tb/tb_top.cpp](hls/HLS_Proj/ROI_Test/tb/tb_top.cpp)
 - HLS 脚本: [hls/HLS_Proj/ROI_Test/scripts/run_hls.tcl](hls/HLS_Proj/ROI_Test/scripts/run_hls.tcl)
 
@@ -46,6 +50,24 @@
 - ROI 内支持灰度转换
 - ROI 内可选二值化阈值处理
 - ROI 外区域输出清零
+
+轻量 ISP（已加入）：
+
+- 白平衡：`wb_r_gain / wb_g_gain / wb_b_gain`（Q8，`256=1.0x`）
+- Gamma：离散模式控制 `gamma_mode`
+  - `0` 旁路
+  - `1` 提亮
+  - `2` 轻压暗
+  - `3` 强压暗
+- 简易降噪：`denoise_strength`（0~255，一阶 IIR 混合）
+
+ROI 内处理顺序：白平衡 -> Gamma -> 简易降噪 -> 可选灰度/阈值。
+
+模块拆分说明：
+
+- [roi.cpp](hls/HLS_Proj/ROI_Test/src/roi.cpp) 只负责 ROI 窗口计算与 ROI 区域判断。
+- [isp.cpp](hls/HLS_Proj/ROI_Test/src/isp.cpp) 只负责白平衡、Gamma 和简易降噪。
+- [top.cpp](hls/HLS_Proj/ROI_Test/src/top.cpp) 只负责把 ROI 与 ISP 串成完整流水。
 
 注：编译期最大分辨率约束定义在 [hls/HLS_Proj/ROI_Test/include/video_params.h](hls/HLS_Proj/ROI_Test/include/video_params.h)（MAX_WIDTH=1280, MAX_HEIGHT=720）。
 

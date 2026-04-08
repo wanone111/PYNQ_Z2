@@ -1,15 +1,6 @@
+#include "isp.h"
+#include "roi.h"
 #include "top.h"
-
-static inline ap_uint<16> clamp_u16(ap_uint<16> v, ap_uint<16> lo, ap_uint<16> hi) {
-#pragma HLS INLINE
-	if (v < lo) {
-		return lo;
-	}
-	if (v > hi) {
-		return hi;
-	}
-	return v;
-}
 
 void video_preprocess(
 	hls::stream<axi_pixel_t>& src,
@@ -20,6 +11,11 @@ void video_preprocess(
 	ap_uint<16> roi_y,
 	ap_uint<16> roi_w,
 	ap_uint<16> roi_h,
+	ap_uint<16> wb_r_gain,
+	ap_uint<16> wb_g_gain,
+	ap_uint<16> wb_b_gain,
+	ap_uint<8> gamma_mode,
+	ap_uint<8> denoise_strength,
 	ap_uint<8> gray_en,
 	ap_uint<8> threshold_en,
 	ap_uint<8> threshold_val) {
@@ -31,32 +27,27 @@ void video_preprocess(
 #pragma HLS INTERFACE s_axilite port=roi_y bundle=control
 #pragma HLS INTERFACE s_axilite port=roi_w bundle=control
 #pragma HLS INTERFACE s_axilite port=roi_h bundle=control
+#pragma HLS INTERFACE s_axilite port=wb_r_gain bundle=control
+#pragma HLS INTERFACE s_axilite port=wb_g_gain bundle=control
+#pragma HLS INTERFACE s_axilite port=wb_b_gain bundle=control
+#pragma HLS INTERFACE s_axilite port=gamma_mode bundle=control
+#pragma HLS INTERFACE s_axilite port=denoise_strength bundle=control
 #pragma HLS INTERFACE s_axilite port=gray_en bundle=control
 #pragma HLS INTERFACE s_axilite port=threshold_en bundle=control
 #pragma HLS INTERFACE s_axilite port=threshold_val bundle=control
 #pragma HLS INTERFACE s_axilite port=return bundle=control
 
-	ap_uint<16> proc_rows = clamp_u16(rows, 1, MAX_HEIGHT);
-	ap_uint<16> proc_cols = clamp_u16(cols, 1, MAX_WIDTH);
-
-	ap_uint<16> x0 = clamp_u16(roi_x, 0, (proc_cols > 0) ? (ap_uint<16>)(proc_cols - 1) : (ap_uint<16>)0);
-	ap_uint<16> y0 = clamp_u16(roi_y, 0, (proc_rows > 0) ? (ap_uint<16>)(proc_rows - 1) : (ap_uint<16>)0);
-	ap_uint<16> rw = (roi_w == 0) ? (ap_uint<16>)proc_cols : roi_w;
-	ap_uint<16> rh = (roi_h == 0) ? (ap_uint<16>)proc_rows : roi_h;
-
-	ap_uint<16> x1 = x0 + rw;
-	ap_uint<16> y1 = y0 + rh;
-	if (x1 > proc_cols) {
-		x1 = proc_cols;
-	}
-	if (y1 > proc_rows) {
-		y1 = proc_rows;
-	}
+	RoiWindow roi = pack_roi_window(rows, cols, roi_x, roi_y, roi_w, roi_h);
 
 row_loop:
-	for (ap_uint<16> r = 0; r < proc_rows; ++r) {
+	for (ap_uint<16> r = 0; r < rows; ++r) {
+		// 每行重置历史像素，避免跨行残留导致拖影。
+		ap_uint<8> prev_r = 0;
+		ap_uint<8> prev_g = 0;
+		ap_uint<8> prev_b = 0;
+		bool prev_valid = false;
 	col_loop:
-		for (ap_uint<16> c = 0; c < proc_cols; ++c) {
+		for (ap_uint<16> c = 0; c < cols; ++c) {
 #pragma HLS PIPELINE II=1
 			axi_pixel_t in_pix = src.read();
 			axi_pixel_t out_pix;
@@ -65,15 +56,36 @@ row_loop:
 			ap_uint<8> g = in_pix.data.range(15, 8);
 			ap_uint<8> rr = in_pix.data.range(23, 16);
 
-			bool in_roi = (r >= y0) && (r < y1) && (c >= x0) && (c < x1);
+			bool in_roi = roi_contains(roi, r, c);
 
 			ap_uint<8> out_r = 0;
 			ap_uint<8> out_g = 0;
 			ap_uint<8> out_b = 0;
 
 			if (in_roi) {
+				// ROI 内 ISP 顺序：白平衡 -> Gamma -> 简易降噪。
+				ap_uint<8> isp_r = apply_gain_q8(rr, wb_r_gain);
+				ap_uint<8> isp_g = apply_gain_q8(g, wb_g_gain);
+				ap_uint<8> isp_b = apply_gain_q8(b, wb_b_gain);
+
+				isp_r = gamma_map(isp_r, gamma_mode);
+				isp_g = gamma_map(isp_g, gamma_mode);
+				isp_b = gamma_map(isp_b, gamma_mode);
+
+				if (denoise_strength != 0 && prev_valid) {
+					isp_r = denoise_mix(isp_r, prev_r, denoise_strength);
+					isp_g = denoise_mix(isp_g, prev_g, denoise_strength);
+					isp_b = denoise_mix(isp_b, prev_b, denoise_strength);
+				}
+
+				prev_r = isp_r;
+				prev_g = isp_g;
+				prev_b = isp_b;
+				prev_valid = true;
+
 				if (gray_en) {
-					ap_uint<16> y = (ap_uint<16>)rr * 77 + (ap_uint<16>)g * 150 + (ap_uint<16>)b * 29;
+					// 可选灰度/阈值路径，复用 ISP 后结果。
+					ap_uint<16> y = (ap_uint<16>)isp_r * 77 + (ap_uint<16>)isp_g * 150 + (ap_uint<16>)isp_b * 29;
 					ap_uint<8> gray = (ap_uint<8>)(y >> 8);
 					if (threshold_en) {
 						ap_uint<8> bin = (gray > threshold_val) ? (ap_uint<8>)255 : (ap_uint<8>)0;
@@ -86,10 +98,13 @@ row_loop:
 						out_b = gray;
 					}
 				} else {
-					out_r = rr;
-					out_g = g;
-					out_b = b;
+					out_r = isp_r;
+					out_g = isp_g;
+					out_b = isp_b;
 				}
+			} else {
+				// ROI 外清零，并清除历史像素有效位，避免跨 ROI 污染。
+				prev_valid = false;
 			}
 
 			out_pix.data.range(7, 0) = out_b;
@@ -98,7 +113,7 @@ row_loop:
 			out_pix.keep = in_pix.keep;
 			out_pix.strb = in_pix.strb;
 			out_pix.user = (r == 0 && c == 0) ? 1 : 0;
-			out_pix.last = (c == (proc_cols - 1)) ? 1 : 0;
+			out_pix.last = (c == (cols - 1)) ? 1 : 0;
 			out_pix.id = in_pix.id;
 			out_pix.dest = in_pix.dest;
 

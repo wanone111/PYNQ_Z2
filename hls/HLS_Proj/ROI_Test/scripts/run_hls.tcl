@@ -49,12 +49,16 @@ set ::env(LD_LIBRARY_PATH) "$opencv_lib:$::env(LD_LIBRARY_PATH)"
 open_project -reset "$build_output/video_preprocess_prj"
 
 # 设置顶层函数名为（即要综合的主函数）
-set_top video_preprocess
+set top_name video_preprocess
+set_top $top_name
 
 # 添加设计源文件cpp到项目中（从src目录）
-set common_cflags "-I $inc_dir -I ./ -D__SDSVHLS__ -DXF_USE_AXI4=1 -std=c++14"
+
+set common_cflags "-I $inc_dir -I ./ -D__SDSVHLS__ -DXF_USE_AXI4=1 -std=c++17"
 
 add_files "$src_dir/top.cpp" -cflags "$common_cflags"
+add_files "$src_dir/roi.cpp" -cflags "$common_cflags"
+add_files "$src_dir/isp.cpp" -cflags "$common_cflags"
 # 添加头文件h到项目中（从src目录）
 #add_files ../src//include/
 
@@ -71,13 +75,9 @@ set_part {xc7z020clg400-1}
 #创建时钟约束，设置时钟周期为10ns（即100MHz频率）
 create_clock -period 10
 
-# ============ 综合优化配置 (PYNQ-Z2 资源约束) ============
-config_interface -m_axi_max_widen_bitwidth 128
-config_rtl -reset all -reset_level low
-
 # ============ HLS流程执行部分 ============
-set run_csim 0
-set run_cosim 0
+set run_csim 1
+set run_cosim 1
 set run_export 0
 
 # 运行C仿真（CSIM），验证算法功能正确性
@@ -102,6 +102,32 @@ if {$run_export} {
 if {$run_export} {
     export_design -flow impl -rtl verilog
 }
+
+
+# =============================================================================
+# 导出 IP 核，便于在后续 Vivado/Vitis 工程中复用
+# =============================================================================
+
+# 导出IP核，便于在后续工程中复用
+set export_dir [file normalize "$project_root/ipcore_file"]
+set export_path [file join $export_dir $top_name]
+file mkdir $export_path
+puts "Export target: $export_path"
+export_design -format ip_catalog -output $export_path
+
+# 将导出的压缩包重命名为与顶层函数一致
+set export_zip [file join $export_path export.zip]
+if {[file exists $export_zip]} {
+    file rename -force $export_zip [file join $export_path "$top_name.zip"]
+}
+
+# 解压导出的IP，并删除原压缩包
+set final_zip [file join $export_path "$top_name.zip"]
+if {[file exists $final_zip]} {
+    exec unzip -o $final_zip -d $export_path
+    file delete -force $final_zip
+}
+
 
 # 退出Vitis HLS工具
 exit
