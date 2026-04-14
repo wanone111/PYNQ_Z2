@@ -2,99 +2,85 @@
 
 本目录用于承接赛题中的 PYNQ 侧工作，目标是完成前端视频流预处理并与 310B 协同。
 
-## 1. 当前目录结构（已对齐仓库现状）
+## 1. 目录与状态（基于当前仓库）
 
-- HLS 工程主路径: [hls/HLS_Proj/ROI_Test](hls/HLS_Proj/ROI_Test)
-- PS 侧脚本路径: [ps](ps)
-- PL 侧比特流说明: [pl/README.md](pl/README.md)
+- HLS 主工程目录: [hls/HLS_Proj/ROI_Test](hls/HLS_Proj/ROI_Test)
+- HLS 旧测试目录: [hls/HLS_Proj/test](hls/HLS_Proj/test)
+- HLS 临时目录/压缩包: [hls/HLS_Proj_Temp](hls/HLS_Proj_Temp), [hls/HLS_Proj_Temp_roi_yuv420_roi_rgbout.zip](hls/HLS_Proj_Temp_roi_yuv420_roi_rgbout.zip)
+- PS 脚本目录: [ps](ps)
+- PL 比特流说明: [pl/README.md](pl/README.md)
 
-当前 HLS 可综合代码入口：
+当前可综合入口文件：
 
 - 顶层声明: [hls/HLS_Proj/ROI_Test/include/top.h](hls/HLS_Proj/ROI_Test/include/top.h)
-- 视频参数: [hls/HLS_Proj/ROI_Test/include/video_params.h](hls/HLS_Proj/ROI_Test/include/video_params.h)
-- ROI 接口: [hls/HLS_Proj/ROI_Test/include/roi.h](hls/HLS_Proj/ROI_Test/include/roi.h)
-- ISP 接口: [hls/HLS_Proj/ROI_Test/include/isp.h](hls/HLS_Proj/ROI_Test/include/isp.h)
+- 参数定义: [hls/HLS_Proj/ROI_Test/include/video_params.h](hls/HLS_Proj/ROI_Test/include/video_params.h)
+- ROI 模块: [hls/HLS_Proj/ROI_Test/include/roi.h](hls/HLS_Proj/ROI_Test/include/roi.h), [hls/HLS_Proj/ROI_Test/src/roi.cpp](hls/HLS_Proj/ROI_Test/src/roi.cpp)
+- ISP 模块: [hls/HLS_Proj/ROI_Test/include/isp.h](hls/HLS_Proj/ROI_Test/include/isp.h), [hls/HLS_Proj/ROI_Test/src/isp.cpp](hls/HLS_Proj/ROI_Test/src/isp.cpp)
 - 顶层实现: [hls/HLS_Proj/ROI_Test/src/top.cpp](hls/HLS_Proj/ROI_Test/src/top.cpp)
-- ROI 实现: [hls/HLS_Proj/ROI_Test/src/roi.cpp](hls/HLS_Proj/ROI_Test/src/roi.cpp)
-- ISP 实现: [hls/HLS_Proj/ROI_Test/src/isp.cpp](hls/HLS_Proj/ROI_Test/src/isp.cpp)
 - Testbench: [hls/HLS_Proj/ROI_Test/tb/tb_top.cpp](hls/HLS_Proj/ROI_Test/tb/tb_top.cpp)
 - HLS 脚本: [hls/HLS_Proj/ROI_Test/scripts/run_hls.tcl](hls/HLS_Proj/ROI_Test/scripts/run_hls.tcl)
 
-## 2. PYNQ 与 310B 侧分工
+## 2. PYNQ 与 310B 分工
 
-- PYNQ-Z2: 采集接口适配、轻量预处理、ROI 流控、稳定输出
-- 310B: DVPP 几何整形、AIPP 数学预处理、NPU 推理、业务事件判定
+- PYNQ-Z2: 采集适配、轻量预处理、ROI 流控、稳定输出
+- 310B: DVPP 几何处理、AIPP 数学预处理、NPU 推理、业务判定
 
-原则：只在一侧执行一次缩放和归一化，避免重复计算与带宽浪费。
+原则：缩放与归一化只在一侧执行一次，避免重复计算与带宽浪费。
 
 ## 3. 当前 HLS 内核能力
 
-当前顶层函数为 video_preprocess，接口在 [hls/HLS_Proj/ROI_Test/include/top.h](hls/HLS_Proj/ROI_Test/include/top.h)。
+当前顶层函数为 `video_preprocess`，定义见 [hls/HLS_Proj/ROI_Test/include/top.h](hls/HLS_Proj/ROI_Test/include/top.h)。
 
-输入输出：
+数据接口：
 
-- src: AXI4-Stream 视频输入（24-bit RGB）
-- dst: AXI4-Stream 视频输出（24-bit RGB）
+- `src`: AXI4-Stream 输入（24-bit RGB）
+- `dst`: AXI4-Stream 输出（24-bit RGB）
 
 控制参数（AXI-Lite）：
 
-- rows, cols: 当前帧分辨率
-- roi_x, roi_y, roi_w, roi_h: ROI 起点和尺寸
-- gray_en: 灰度开关
-- threshold_en: 二值化开关
-- threshold_val: 二值化阈值
+- 分辨率: `rows`, `cols`
+- ROI: `roi_x`, `roi_y`, `roi_w`, `roi_h`
+- ISP: `wb_r_gain`, `wb_g_gain`, `wb_b_gain`, `gamma_mode`, `denoise_strength`
+- 灰度/阈值: `gray_en`, `threshold_en`, `threshold_val`
 
-当前实现行为：
+实现行为（当前代码）：
 
-- 支持运行时 ROI 窗口控制
-- ROI 内支持灰度转换
-- ROI 内可选二值化阈值处理
-- ROI 外区域输出清零
-
-轻量 ISP（已加入）：
-
-- 白平衡：`wb_r_gain / wb_g_gain / wb_b_gain`（Q8，`256=1.0x`）
-- Gamma：离散模式控制 `gamma_mode`
-  - `0` 旁路
-  - `1` 提亮
-  - `2` 轻压暗
-  - `3` 强压暗
-- 简易降噪：`denoise_strength`（0~255，一阶 IIR 混合）
+- 支持运行时 ROI 控制
+- ROI 内执行白平衡、Gamma、简易去噪
+- ROI 内可选灰度与二值化
+- ROI 外输出清零
 
 ROI 内处理顺序：白平衡 -> Gamma -> 简易降噪 -> 可选灰度/阈值。
 
-模块拆分说明：
+编译期最大分辨率限制定义在 [hls/HLS_Proj/ROI_Test/include/video_params.h](hls/HLS_Proj/ROI_Test/include/video_params.h)：`MAX_WIDTH=1280`, `MAX_HEIGHT=720`。
 
-- [roi.cpp](hls/HLS_Proj/ROI_Test/src/roi.cpp) 只负责 ROI 窗口计算与 ROI 区域判断。
-- [isp.cpp](hls/HLS_Proj/ROI_Test/src/isp.cpp) 只负责白平衡、Gamma 和简易降噪。
-- [top.cpp](hls/HLS_Proj/ROI_Test/src/top.cpp) 只负责把 ROI 与 ISP 串成完整流水。
+## 4. PS 侧脚本
 
-注：编译期最大分辨率约束定义在 [hls/HLS_Proj/ROI_Test/include/video_params.h](hls/HLS_Proj/ROI_Test/include/video_params.h)（MAX_WIDTH=1280, MAX_HEIGHT=720）。
-
-## 4. PS 侧桥接脚本
-
-USB 摄像头到 PL 的桥接脚本：
+USB 摄像头到 PL 的桥接相关文件：
 
 - 主脚本: [ps/usb_camera_to_pl.py](ps/usb_camera_to_pl.py)
-- Jupyter 版本: [ps/usb_camera_to_pl.ipynb](ps/usb_camera_to_pl.ipynb)
-- 摄像头预检脚本: [ps/usb_camera.py](ps/usb_camera.py)
+- Notebook 版本: [ps/usb_camera_to_pl.ipynb](ps/usb_camera_to_pl.ipynb)
+- 摄像头预检: [ps/usb_camera.py](ps/usb_camera.py)
+- 无 HDMI 流程脚本: [ps/PL_ROI_NoDHMI.py](ps/PL_ROI_NoDHMI.py)
 
 [ps/usb_camera_to_pl.py](ps/usb_camera_to_pl.py) 当前支持：
 
-- 从 USB 摄像头读取 BGR 帧
-- 将图像打包为 32-bit RGB 数据流（便于 DMA/VDMA 对接）
-- 向 video_preprocess IP 写控制寄存器
-- dry-run 模式（无板卡环境先验证采集和打包流程）
-- 每秒统计 fps、桥接耗时、发送失败与丢帧估计
+- USB 摄像头采集（OpenCV）
+- BGR 帧打包为 32-bit RGB（用于 DMA/VDMA）
+- 向 `video_preprocess` IP 写控制寄存器
+- dry-run 模式（无板卡先验证流程）
+- 每秒输出 FPS 与桥接时延统计
 
 ## 5. 运行方式
 
-在本机环境下，建议通过 vitis-run 启动 HLS：
+HLS 一键流程：
 
 ```bash
 cd /home/bb/competition_ws/pynq_z2
 vitis-run --mode hls --tcl hls/HLS_Proj/ROI_Test/scripts/run_hls.tcl
 ```
+
+说明：`run_hls.tcl` 会在 [hls/HLS_Proj/ROI_Test/build/hls_video_preprocess](hls/HLS_Proj/ROI_Test/build/hls_video_preprocess) 生成工程和综合结果。
 
 PS 侧 dry-run 示例：
 
@@ -103,7 +89,7 @@ cd /home/bb/competition_ws/pynq_z2
 python3 ps/usb_camera_to_pl.py --dry-run --camera 0 --width 640 --height 480 --show
 ```
 
-摄像头预检示例：
+摄像头能力探测示例：
 
 ```bash
 cd /home/bb/competition_ws/pynq_z2
@@ -119,9 +105,9 @@ python3 ps/usb_camera_to_pl.py --overlay <overlay.bit> --ip-name video_preproces
 
 ## 6. 联调建议
 
-- 先用 HLS testbench 验证 ROI/灰度/阈值行为，再上板联调。
-- 先跑 dry-run，再切换 overlay + DMA 实链路，便于快速定位问题层级。
-- PL 侧 bit/hwh 文件配对规则参考 [pl/README.md](pl/README.md)。
+- 先跑 HLS testbench，再上板联调。
+- 先 dry-run，再切换 overlay + DMA 实链路。
+- bit/hwh 文件配对规则参考 [pl/README.md](pl/README.md)。
 
 ## 7. 参考
 
