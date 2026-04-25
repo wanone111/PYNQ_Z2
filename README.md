@@ -9,10 +9,26 @@
 本项目是基于 **PYNQ-Z2 FPGA** 的视频流前端预处理系统，专为华为昇腾 310B 异构计算平台设计。主工程位于 `hls/video_preprocess/`，实现了 **ISP 图像处理**、**动态 ROI 区域选择** 和 **RGB 到 YUV420SP 转换** 三大核心功能，与 310B NPU 协同完成智能视觉交互任务。
 
 ### 应用场景
+
 - 🎭 主题乐园 IP 沉浸式演艺联动
 - 🎯 动作识别（挥手、欢呼、比心等）
 - 😊 表情捕捉与响应
 - 📹 复杂环境下的视频预处理
+
+### 当前状态快照（2026-04-26）
+
+- 主工程：`hls/video_preprocess/`
+- CSim：已通过（10/10 用例通过）
+- C Synthesis：已完成并生成报告（`video_preprocess_csynth.rpt`）
+- 关键综合指标（目标器件 `xc7z020-clg400-1`）：时钟估计 7.268 ns（目标 10 ns）
+- 资源占用：BRAM 30 (10%)，DSP 14 (6%)，FF 7386 (6%)，LUT 7779 (14%)
+- 当前待持续推进：长时 RTL/Cosim 稳定跑通、板级吞吐与端到端延迟实测闭环
+
+### 当前阻塞与注意事项
+
+- 运行 `vitis-run` 前必须先加载 Vitis 环境，否则会出现 `vitis-run: command not found`。
+- 在 conda 环境下可能出现 `libtinfo.so.6: no version information available`，当前属于告警，不影响 CSim/CSynth 结果。
+- 现阶段工具链输出中有若干 HLS warning（如 INLINE/PIPELINE pragma 冲突、可变 tripcount 循环无法完全 unroll），不阻塞综合，但会影响后续性能收敛与可维护性。
 
 ---
 
@@ -133,6 +149,26 @@ void video_preprocess(
 - **DSP48 并行计算**：YUV 转换加速，延迟降低 15-25%
 - **零开销 ROI 检查**：预计算边界，无分支预测惩罚
 
+### 当前优化方向（团队对齐）
+
+#### P0：稳定性与可复现性（优先）
+
+- 将构建流程拆分为独立目标：`csim` / `csynth` / `cosim`，避免每次默认跑完整链路导致调试周期过长。
+- 固化统一启动方式：先 `source /opt/Xilinx/2025.2.1/Vitis/settings64.sh`，再执行 `vitis-run`。
+- 在脚本中显式打印工具版本、路径和关键依赖（OpenCV、clang）以降低环境偏差。
+
+#### P1：性能收敛（近期）
+
+- 消除 pragma 冲突：避免同一函数同时要求不可兼容的 `INLINE` 与 `PIPELINE` 组合。
+- 减少可变 tripcount 带来的调度不确定性：将关键循环改为“固定上限 + 有效区间判断”模式。
+- 进一步压缩 `stage_isp_processing` 的 LUT 占用，优先优化像素索引与分支路径。
+
+#### P2：系统联调（并行）
+
+- 完成板级实测指标补齐：`fps`、帧内延迟、ROI 切换时延、UV 对齐正确性。
+- 与 310B 侧对齐 NV12 数据契约，避免重复色彩转换和冗余预处理。
+- 输出统一版本的联调验收清单（输入格式、分辨率、寄存器配置、日志关键字）。
+
 ### 资源约束
 
 - 最大分辨率：**1280 × 720** @ 60fps
@@ -156,6 +192,9 @@ void video_preprocess(
 ```bash
 # 进入主工程目录
 cd /workspace/hls/video_preprocess
+
+# 加载 Vitis 环境（必须）
+source /opt/Xilinx/2025.2.1/Vitis/settings64.sh
 
 # 执行 HLS 一键综合
 vitis-run --mode hls --tcl scripts/run_hls.tcl
@@ -240,7 +279,11 @@ PYNQ-Z2 输出 → 310B DVPP 输入
 
 | 指标 | 目标值 | 实测值 |
 |------|--------|--------|
-| 输入延迟 | < 16ms (60fps) | TBD |
+| 综合时钟估计 | <= 10ns | 7.268ns |
+| BRAM 占用 | < 20% | 10% |
+| LUT 占用 | < 20% | 14% |
+| DSP 占用 | < 20% | 6% |
+| 输入延迟 | < 16ms (60fps) | 板测待补齐 |
 | ROI 切换延迟 | < 1ms | TBD |
 | 吞吐率 | 1280×720@60fps | TBD |
 | 动作识别准确率 | > 90% | - |
