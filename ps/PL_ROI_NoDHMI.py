@@ -186,7 +186,6 @@ try:
 
         if frame_id % PRINT_EVERY_N_FRAMES == 0:
             total_cpu, core_cpu, proc_cpu = cpu_mon.sample()
-
             payload = {
                 "frame_id": frame_id,
                 "brightness": brightness,
