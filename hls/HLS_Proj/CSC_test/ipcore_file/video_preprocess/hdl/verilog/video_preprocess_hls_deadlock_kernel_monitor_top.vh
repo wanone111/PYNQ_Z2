@@ -6,18 +6,23 @@ assign kernel_monitor_reset = ~ap_rst_n;
 assign kernel_monitor_clock = ap_clk;
 assign kernel_monitor_report = 1'b0;
 wire [2:0] axis_block_sigs;
-wire [1:0] inst_idle_sigs;
-wire [0:0] inst_block_sigs;
+wire [4:0] inst_idle_sigs;
+wire [2:0] inst_block_sigs;
 wire kernel_block;
 
-assign axis_block_sigs[0] = ~grp_video_preprocess_Pipeline_col_loop_fu_182.src_TDATA_blk_n;
-assign axis_block_sigs[1] = ~grp_video_preprocess_Pipeline_col_loop_fu_182.y_dst_TDATA_blk_n;
-assign axis_block_sigs[2] = ~grp_video_preprocess_Pipeline_col_loop_fu_182.uv_dst_TDATA_blk_n;
+assign axis_block_sigs[0] = ~Loop_row_loop_proc_U0.src_TDATA_blk_n;
+assign axis_block_sigs[1] = ~Loop_row_loop_proc_U0.y_dst_TDATA_blk_n;
+assign axis_block_sigs[2] = ~Loop_row_loop_proc_U0.uv_dst_TDATA_blk_n;
 
-assign inst_block_sigs[0] = 1'b0;
+assign inst_idle_sigs[0] = entry_proc_U0.ap_idle;
+assign inst_block_sigs[0] = (entry_proc_U0.ap_done & ~entry_proc_U0.ap_continue) | ~entry_proc_U0.input_is_bgr_c_blk_n;
+assign inst_idle_sigs[1] = Block_entry_proc_U0.ap_idle;
+assign inst_block_sigs[1] = (Block_entry_proc_U0.ap_done & ~Block_entry_proc_U0.ap_continue);
+assign inst_idle_sigs[2] = Loop_row_loop_proc_U0.ap_idle;
+assign inst_block_sigs[2] = (Loop_row_loop_proc_U0.ap_done & ~Loop_row_loop_proc_U0.ap_continue) | ~Loop_row_loop_proc_U0.input_is_bgr_blk_n;
 
-assign inst_idle_sigs[0] = 1'b0;
-assign inst_idle_sigs[1] = grp_video_preprocess_Pipeline_col_loop_fu_182.ap_idle;
+assign inst_idle_sigs[3] = 1'b0;
+assign inst_idle_sigs[4] = Loop_row_loop_proc_U0.ap_idle;
 
 video_preprocess_hls_deadlock_idx0_monitor video_preprocess_hls_deadlock_idx0_monitor_U (
     .clock(kernel_monitor_clock),

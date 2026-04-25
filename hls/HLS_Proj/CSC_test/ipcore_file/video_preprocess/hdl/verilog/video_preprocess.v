@@ -6,39 +6,10 @@
 
 `timescale 1 ns / 1 ps 
 
-(* CORE_GENERATION_INFO="video_preprocess_video_preprocess,hls_ip_2025_2_1,{HLS_INPUT_TYPE=cxx,HLS_INPUT_FLOAT=0,HLS_INPUT_FIXED=0,HLS_INPUT_PART=xc7z020-clg400-1,HLS_INPUT_CLOCK=10.000000,HLS_INPUT_ARCH=others,HLS_SYN_CLOCK=6.692500,HLS_SYN_LAT=464762,HLS_SYN_TPT=none,HLS_SYN_MEM=3,HLS_SYN_DSP=0,HLS_SYN_FF=765,HLS_SYN_LUT=1365,HLS_VERSION=2025_2_1}" *)
+(* CORE_GENERATION_INFO="video_preprocess_video_preprocess,hls_ip_2025_2_1,{HLS_INPUT_TYPE=cxx,HLS_INPUT_FLOAT=0,HLS_INPUT_FIXED=0,HLS_INPUT_PART=xc7z020-clg400-1,HLS_INPUT_CLOCK=10.000000,HLS_INPUT_ARCH=dataflow,HLS_SYN_CLOCK=6.805800,HLS_SYN_LAT=464402,HLS_SYN_TPT=464402,HLS_SYN_MEM=24,HLS_SYN_DSP=0,HLS_SYN_FF=1631,HLS_SYN_LUT=1916,HLS_VERSION=2025_2_1}" *)
 
 (* DowngradeIPIdentifiedWarnings="yes" *)
 module video_preprocess (
-        ap_clk,
-        ap_rst_n,
-        src_TDATA,
-        src_TVALID,
-        src_TREADY,
-        src_TKEEP,
-        src_TSTRB,
-        src_TUSER,
-        src_TLAST,
-        src_TID,
-        src_TDEST,
-        y_dst_TDATA,
-        y_dst_TVALID,
-        y_dst_TREADY,
-        y_dst_TKEEP,
-        y_dst_TSTRB,
-        y_dst_TUSER,
-        y_dst_TLAST,
-        y_dst_TID,
-        y_dst_TDEST,
-        uv_dst_TDATA,
-        uv_dst_TVALID,
-        uv_dst_TREADY,
-        uv_dst_TKEEP,
-        uv_dst_TSTRB,
-        uv_dst_TUSER,
-        uv_dst_TLAST,
-        uv_dst_TID,
-        uv_dst_TDEST,
         s_axi_control_AWVALID,
         s_axi_control_AWREADY,
         s_axi_control_AWADDR,
@@ -56,15 +27,38 @@ module video_preprocess (
         s_axi_control_BVALID,
         s_axi_control_BREADY,
         s_axi_control_BRESP,
-        interrupt
+        ap_clk,
+        ap_rst_n,
+        interrupt,
+        src_TDATA,
+        src_TKEEP,
+        src_TSTRB,
+        src_TUSER,
+        src_TLAST,
+        src_TID,
+        src_TDEST,
+        y_dst_TDATA,
+        y_dst_TKEEP,
+        y_dst_TSTRB,
+        y_dst_TUSER,
+        y_dst_TLAST,
+        y_dst_TID,
+        y_dst_TDEST,
+        uv_dst_TDATA,
+        uv_dst_TKEEP,
+        uv_dst_TSTRB,
+        uv_dst_TUSER,
+        uv_dst_TLAST,
+        uv_dst_TID,
+        uv_dst_TDEST,
+        src_TVALID,
+        src_TREADY,
+        y_dst_TVALID,
+        y_dst_TREADY,
+        uv_dst_TVALID,
+        uv_dst_TREADY
 );
 
-parameter    ap_ST_fsm_state1 = 6'd1;
-parameter    ap_ST_fsm_state2 = 6'd2;
-parameter    ap_ST_fsm_state3 = 6'd4;
-parameter    ap_ST_fsm_state4 = 6'd8;
-parameter    ap_ST_fsm_state5 = 6'd16;
-parameter    ap_ST_fsm_state6 = 6'd32;
 parameter    C_S_AXI_CONTROL_DATA_WIDTH = 32;
 parameter    C_S_AXI_CONTROL_ADDR_WIDTH = 6;
 parameter    C_S_AXI_DATA_WIDTH = 32;
@@ -72,35 +66,6 @@ parameter    C_S_AXI_DATA_WIDTH = 32;
 parameter C_S_AXI_CONTROL_WSTRB_WIDTH = (32 / 8);
 parameter C_S_AXI_WSTRB_WIDTH = (32 / 8);
 
-input   ap_clk;
-input   ap_rst_n;
-input  [23:0] src_TDATA;
-input   src_TVALID;
-output   src_TREADY;
-input  [2:0] src_TKEEP;
-input  [2:0] src_TSTRB;
-input  [0:0] src_TUSER;
-input  [0:0] src_TLAST;
-input  [0:0] src_TID;
-input  [0:0] src_TDEST;
-output  [7:0] y_dst_TDATA;
-output   y_dst_TVALID;
-input   y_dst_TREADY;
-output  [0:0] y_dst_TKEEP;
-output  [0:0] y_dst_TSTRB;
-output  [0:0] y_dst_TUSER;
-output  [0:0] y_dst_TLAST;
-output  [0:0] y_dst_TID;
-output  [0:0] y_dst_TDEST;
-output  [7:0] uv_dst_TDATA;
-output   uv_dst_TVALID;
-input   uv_dst_TREADY;
-output  [0:0] uv_dst_TKEEP;
-output  [0:0] uv_dst_TSTRB;
-output  [0:0] uv_dst_TUSER;
-output  [0:0] uv_dst_TLAST;
-output  [0:0] uv_dst_TID;
-output  [0:0] uv_dst_TDEST;
 input   s_axi_control_AWVALID;
 output   s_axi_control_AWREADY;
 input  [C_S_AXI_CONTROL_ADDR_WIDTH - 1:0] s_axi_control_AWADDR;
@@ -118,262 +83,125 @@ output  [1:0] s_axi_control_RRESP;
 output   s_axi_control_BVALID;
 input   s_axi_control_BREADY;
 output  [1:0] s_axi_control_BRESP;
+input   ap_clk;
+input   ap_rst_n;
 output   interrupt;
+input  [23:0] src_TDATA;
+input  [2:0] src_TKEEP;
+input  [2:0] src_TSTRB;
+input  [0:0] src_TUSER;
+input  [0:0] src_TLAST;
+input  [0:0] src_TID;
+input  [0:0] src_TDEST;
+output  [7:0] y_dst_TDATA;
+output  [0:0] y_dst_TKEEP;
+output  [0:0] y_dst_TSTRB;
+output  [0:0] y_dst_TUSER;
+output  [0:0] y_dst_TLAST;
+output  [0:0] y_dst_TID;
+output  [0:0] y_dst_TDEST;
+output  [7:0] uv_dst_TDATA;
+output  [0:0] uv_dst_TKEEP;
+output  [0:0] uv_dst_TSTRB;
+output  [0:0] uv_dst_TUSER;
+output  [0:0] uv_dst_TLAST;
+output  [0:0] uv_dst_TID;
+output  [0:0] uv_dst_TDEST;
+input   src_TVALID;
+output   src_TREADY;
+output   y_dst_TVALID;
+input   y_dst_TREADY;
+output   uv_dst_TVALID;
+input   uv_dst_TREADY;
 
  reg    ap_rst_n_inv;
-wire    ap_start;
-reg    ap_done;
-reg    ap_idle;
-(* fsm_encoding = "none" *) reg   [5:0] ap_CS_fsm;
-wire    ap_CS_fsm_state1;
-reg    ap_ready;
 wire   [15:0] rows;
 wire   [15:0] cols;
 wire   [7:0] input_is_bgr;
-wire   [9:0] proc_rows_fu_250_p3;
-reg   [9:0] proc_rows_reg_406;
-wire   [10:0] proc_cols_fu_268_p3;
-reg   [10:0] proc_cols_reg_411;
-wire   [0:0] trunc_ln96_fu_302_p1;
-reg   [0:0] trunc_ln96_reg_416;
-wire   [11:0] add_ln104_fu_306_p2;
-reg   [11:0] add_ln104_reg_421;
-wire   [11:0] add_ln144_fu_312_p2;
-reg   [11:0] add_ln144_reg_426;
-wire   [9:0] r_3_fu_346_p2;
-reg   [9:0] r_3_reg_437;
-wire    ap_CS_fsm_state2;
-wire   [0:0] icmp_ln80_fu_352_p2;
-reg   [0:0] icmp_ln80_reg_442;
-wire   [0:0] trunc_ln78_fu_358_p1;
-reg   [0:0] trunc_ln78_reg_448;
-wire    ap_CS_fsm_state3;
-wire   [0:0] uv_user_sent_1_fu_362_p2;
-reg   [0:0] uv_user_sent_1_reg_453;
-wire    grp_video_preprocess_Pipeline_col_loop_fu_182_ap_start;
-wire    grp_video_preprocess_Pipeline_col_loop_fu_182_ap_done;
-wire    grp_video_preprocess_Pipeline_col_loop_fu_182_ap_idle;
-wire    grp_video_preprocess_Pipeline_col_loop_fu_182_ap_ready;
-wire    grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TREADY;
-wire    grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TREADY;
-wire    grp_video_preprocess_Pipeline_col_loop_fu_182_src_TREADY;
-wire   [7:0] grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TDATA;
-wire    grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TVALID;
-wire   [0:0] grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TKEEP;
-wire   [0:0] grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TSTRB;
-wire   [0:0] grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TUSER;
-wire   [0:0] grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TLAST;
-wire   [0:0] grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TID;
-wire   [0:0] grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TDEST;
-wire   [7:0] grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TDATA;
-wire    grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TVALID;
-wire   [0:0] grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TKEEP;
-wire   [0:0] grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TSTRB;
-wire   [0:0] grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TUSER;
-wire   [0:0] grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TLAST;
-wire   [0:0] grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TID;
-wire   [0:0] grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TDEST;
-wire   [0:0] grp_video_preprocess_Pipeline_col_loop_fu_182_uv_user_sent_2_out;
-wire    grp_video_preprocess_Pipeline_col_loop_fu_182_uv_user_sent_2_out_ap_vld;
-wire   [7:0] grp_video_preprocess_Pipeline_col_loop_fu_182_left_b_3_out_o;
-wire    grp_video_preprocess_Pipeline_col_loop_fu_182_left_b_3_out_o_ap_vld;
-wire   [7:0] grp_video_preprocess_Pipeline_col_loop_fu_182_left_g_3_out_o;
-wire    grp_video_preprocess_Pipeline_col_loop_fu_182_left_g_3_out_o_ap_vld;
-wire   [7:0] grp_video_preprocess_Pipeline_col_loop_fu_182_left_r_3_out_o;
-wire    grp_video_preprocess_Pipeline_col_loop_fu_182_left_r_3_out_o_ap_vld;
-reg   [0:0] uv_user_sent_reg_170;
-wire    ap_CS_fsm_state5;
-reg    grp_video_preprocess_Pipeline_col_loop_fu_182_ap_start_reg;
-wire    ap_CS_fsm_state4;
-reg   [7:0] y_dst_TDATA_reg;
-reg   [0:0] y_dst_TKEEP_reg;
-reg   [0:0] y_dst_TSTRB_reg;
-reg   [0:0] y_dst_TUSER_reg;
-reg   [0:0] y_dst_TLAST_reg;
-reg   [0:0] y_dst_TID_reg;
-reg   [0:0] y_dst_TDEST_reg;
-reg   [7:0] uv_dst_TDATA_reg;
-reg   [0:0] uv_dst_TKEEP_reg;
-reg   [0:0] uv_dst_TSTRB_reg;
-reg   [0:0] uv_dst_TUSER_reg;
-reg   [0:0] uv_dst_TLAST_reg;
-reg   [0:0] uv_dst_TID_reg;
-reg   [0:0] uv_dst_TDEST_reg;
-reg   [7:0] left_b_fu_140;
-reg   [7:0] left_g_fu_136;
-reg   [7:0] left_r_fu_132;
-reg   [9:0] r_fu_144;
-wire   [0:0] icmp_ln60_fu_240_p2;
-wire   [9:0] trunc_ln58_fu_246_p1;
-wire   [0:0] icmp_ln66_fu_258_p2;
-wire   [10:0] trunc_ln58_1_fu_264_p1;
-wire   [9:0] tmp_1_fu_280_p4;
-wire   [10:0] even_cols_fu_290_p3;
-wire   [11:0] zext_ln58_fu_276_p1;
-wire   [11:0] zext_ln71_fu_298_p1;
-wire   [0:0] icmp_ln78_fu_341_p2;
-wire    ap_CS_fsm_state6;
-wire    regslice_both_y_dst_V_data_V_U_apdone_blk;
-wire    regslice_both_uv_dst_V_data_V_U_apdone_blk;
-reg    ap_block_state6;
-reg   [5:0] ap_NS_fsm;
-reg    ap_ST_fsm_state1_blk;
-wire    ap_ST_fsm_state2_blk;
-wire    ap_ST_fsm_state3_blk;
-reg    ap_ST_fsm_state4_blk;
-wire    ap_ST_fsm_state5_blk;
-reg    ap_ST_fsm_state6_blk;
-wire    regslice_both_src_V_data_V_U_apdone_blk;
-wire   [23:0] src_TDATA_int_regslice;
-wire    src_TVALID_int_regslice;
-reg    src_TREADY_int_regslice;
-wire    regslice_both_src_V_data_V_U_ack_in;
-wire    regslice_both_src_V_keep_V_U_apdone_blk;
-wire   [2:0] src_TKEEP_int_regslice;
-wire    regslice_both_src_V_keep_V_U_vld_out;
-wire    regslice_both_src_V_keep_V_U_ack_in;
-wire    regslice_both_src_V_strb_V_U_apdone_blk;
-wire   [2:0] src_TSTRB_int_regslice;
-wire    regslice_both_src_V_strb_V_U_vld_out;
-wire    regslice_both_src_V_strb_V_U_ack_in;
-wire    regslice_both_src_V_user_V_U_apdone_blk;
-wire   [0:0] src_TUSER_int_regslice;
-wire    regslice_both_src_V_user_V_U_vld_out;
-wire    regslice_both_src_V_user_V_U_ack_in;
-wire    regslice_both_src_V_last_V_U_apdone_blk;
-wire   [0:0] src_TLAST_int_regslice;
-wire    regslice_both_src_V_last_V_U_vld_out;
-wire    regslice_both_src_V_last_V_U_ack_in;
-wire    regslice_both_src_V_id_V_U_apdone_blk;
-wire   [0:0] src_TID_int_regslice;
-wire    regslice_both_src_V_id_V_U_vld_out;
-wire    regslice_both_src_V_id_V_U_ack_in;
-wire    regslice_both_src_V_dest_V_U_apdone_blk;
-wire   [0:0] src_TDEST_int_regslice;
-wire    regslice_both_src_V_dest_V_U_vld_out;
-wire    regslice_both_src_V_dest_V_U_ack_in;
-reg   [7:0] y_dst_TDATA_int_regslice;
-wire    y_dst_TVALID_int_regslice;
-wire    y_dst_TREADY_int_regslice;
-wire    regslice_both_y_dst_V_data_V_U_vld_out;
-wire    regslice_both_y_dst_V_keep_V_U_apdone_blk;
-reg   [0:0] y_dst_TKEEP_int_regslice;
-wire    regslice_both_y_dst_V_keep_V_U_ack_in_dummy;
-wire    regslice_both_y_dst_V_keep_V_U_vld_out;
-wire    regslice_both_y_dst_V_strb_V_U_apdone_blk;
-reg   [0:0] y_dst_TSTRB_int_regslice;
-wire    regslice_both_y_dst_V_strb_V_U_ack_in_dummy;
-wire    regslice_both_y_dst_V_strb_V_U_vld_out;
-wire    regslice_both_y_dst_V_user_V_U_apdone_blk;
-reg   [0:0] y_dst_TUSER_int_regslice;
-wire    regslice_both_y_dst_V_user_V_U_ack_in_dummy;
-wire    regslice_both_y_dst_V_user_V_U_vld_out;
-wire    regslice_both_y_dst_V_last_V_U_apdone_blk;
-reg   [0:0] y_dst_TLAST_int_regslice;
-wire    regslice_both_y_dst_V_last_V_U_ack_in_dummy;
-wire    regslice_both_y_dst_V_last_V_U_vld_out;
-wire    regslice_both_y_dst_V_id_V_U_apdone_blk;
-reg   [0:0] y_dst_TID_int_regslice;
-wire    regslice_both_y_dst_V_id_V_U_ack_in_dummy;
-wire    regslice_both_y_dst_V_id_V_U_vld_out;
-wire    regslice_both_y_dst_V_dest_V_U_apdone_blk;
-reg   [0:0] y_dst_TDEST_int_regslice;
-wire    regslice_both_y_dst_V_dest_V_U_ack_in_dummy;
-wire    regslice_both_y_dst_V_dest_V_U_vld_out;
-reg   [7:0] uv_dst_TDATA_int_regslice;
-wire    uv_dst_TVALID_int_regslice;
-wire    uv_dst_TREADY_int_regslice;
-wire    regslice_both_uv_dst_V_data_V_U_vld_out;
-wire    regslice_both_uv_dst_V_keep_V_U_apdone_blk;
-reg   [0:0] uv_dst_TKEEP_int_regslice;
-wire    regslice_both_uv_dst_V_keep_V_U_ack_in_dummy;
-wire    regslice_both_uv_dst_V_keep_V_U_vld_out;
-wire    regslice_both_uv_dst_V_strb_V_U_apdone_blk;
-reg   [0:0] uv_dst_TSTRB_int_regslice;
-wire    regslice_both_uv_dst_V_strb_V_U_ack_in_dummy;
-wire    regslice_both_uv_dst_V_strb_V_U_vld_out;
-wire    regslice_both_uv_dst_V_user_V_U_apdone_blk;
-reg   [0:0] uv_dst_TUSER_int_regslice;
-wire    regslice_both_uv_dst_V_user_V_U_ack_in_dummy;
-wire    regslice_both_uv_dst_V_user_V_U_vld_out;
-wire    regslice_both_uv_dst_V_last_V_U_apdone_blk;
-reg   [0:0] uv_dst_TLAST_int_regslice;
-wire    regslice_both_uv_dst_V_last_V_U_ack_in_dummy;
-wire    regslice_both_uv_dst_V_last_V_U_vld_out;
-wire    regslice_both_uv_dst_V_id_V_U_apdone_blk;
-reg   [0:0] uv_dst_TID_int_regslice;
-wire    regslice_both_uv_dst_V_id_V_U_ack_in_dummy;
-wire    regslice_both_uv_dst_V_id_V_U_vld_out;
-wire    regslice_both_uv_dst_V_dest_V_U_apdone_blk;
-reg   [0:0] uv_dst_TDEST_int_regslice;
-wire    regslice_both_uv_dst_V_dest_V_U_ack_in_dummy;
-wire    regslice_both_uv_dst_V_dest_V_U_vld_out;
+wire    ap_start;
+wire    ap_ready;
+wire    ap_done;
+wire    ap_idle;
+wire    entry_proc_U0_ap_start;
+wire    entry_proc_U0_ap_done;
+wire    entry_proc_U0_ap_continue;
+wire    entry_proc_U0_ap_idle;
+wire    entry_proc_U0_ap_ready;
+wire   [7:0] entry_proc_U0_input_is_bgr_c_din;
+wire    entry_proc_U0_input_is_bgr_c_write;
+wire    Block_entry_proc_U0_ap_start;
+wire    Block_entry_proc_U0_ap_done;
+wire    Block_entry_proc_U0_ap_continue;
+wire    Block_entry_proc_U0_ap_idle;
+wire    Block_entry_proc_U0_ap_ready;
+wire   [9:0] Block_entry_proc_U0_ap_return_0;
+wire   [10:0] Block_entry_proc_U0_ap_return_1;
+wire   [11:0] Block_entry_proc_U0_ap_return_2;
+wire   [11:0] Block_entry_proc_U0_ap_return_3;
+wire    ap_channel_done_sub126_loc_channel;
+wire    sub126_loc_channel_full_n;
+reg    ap_sync_reg_channel_write_sub126_loc_channel;
+wire    ap_sync_channel_write_sub126_loc_channel;
+wire    Loop_row_loop_proc_U0_ap_start;
+wire    Loop_row_loop_proc_U0_ap_done;
+wire    Loop_row_loop_proc_U0_ap_continue;
+wire    Loop_row_loop_proc_U0_ap_idle;
+wire    Loop_row_loop_proc_U0_ap_ready;
+wire    Loop_row_loop_proc_U0_input_is_bgr_read;
+wire    Loop_row_loop_proc_U0_src_TREADY;
+wire   [7:0] Loop_row_loop_proc_U0_y_dst_TDATA;
+wire    Loop_row_loop_proc_U0_y_dst_TVALID;
+wire   [0:0] Loop_row_loop_proc_U0_y_dst_TKEEP;
+wire   [0:0] Loop_row_loop_proc_U0_y_dst_TSTRB;
+wire   [0:0] Loop_row_loop_proc_U0_y_dst_TUSER;
+wire   [0:0] Loop_row_loop_proc_U0_y_dst_TLAST;
+wire   [0:0] Loop_row_loop_proc_U0_y_dst_TID;
+wire   [0:0] Loop_row_loop_proc_U0_y_dst_TDEST;
+wire   [7:0] Loop_row_loop_proc_U0_uv_dst_TDATA;
+wire    Loop_row_loop_proc_U0_uv_dst_TVALID;
+wire   [0:0] Loop_row_loop_proc_U0_uv_dst_TKEEP;
+wire   [0:0] Loop_row_loop_proc_U0_uv_dst_TSTRB;
+wire   [0:0] Loop_row_loop_proc_U0_uv_dst_TUSER;
+wire   [0:0] Loop_row_loop_proc_U0_uv_dst_TLAST;
+wire   [0:0] Loop_row_loop_proc_U0_uv_dst_TID;
+wire   [0:0] Loop_row_loop_proc_U0_uv_dst_TDEST;
+wire    input_is_bgr_c_full_n;
+wire   [7:0] input_is_bgr_c_dout;
+wire    input_is_bgr_c_empty_n;
+wire   [2:0] input_is_bgr_c_num_data_valid;
+wire   [2:0] input_is_bgr_c_fifo_cap;
+wire    proc_rows_0_loc_channel_full_n;
+wire   [9:0] proc_rows_0_loc_channel_dout;
+wire    proc_rows_0_loc_channel_empty_n;
+wire   [2:0] proc_rows_0_loc_channel_num_data_valid;
+wire   [2:0] proc_rows_0_loc_channel_fifo_cap;
+wire    proc_cols_0_loc_channel_full_n;
+wire   [10:0] proc_cols_0_loc_channel_dout;
+wire    proc_cols_0_loc_channel_empty_n;
+wire   [2:0] proc_cols_0_loc_channel_num_data_valid;
+wire   [2:0] proc_cols_0_loc_channel_fifo_cap;
+wire    sub_loc_channel_full_n;
+wire   [11:0] sub_loc_channel_dout;
+wire    sub_loc_channel_empty_n;
+wire   [2:0] sub_loc_channel_num_data_valid;
+wire   [2:0] sub_loc_channel_fifo_cap;
+wire   [11:0] sub126_loc_channel_dout;
+wire    sub126_loc_channel_empty_n;
+wire   [2:0] sub126_loc_channel_num_data_valid;
+wire   [2:0] sub126_loc_channel_fifo_cap;
+wire    ap_sync_ready;
+reg    ap_sync_reg_entry_proc_U0_ap_ready;
+wire    ap_sync_entry_proc_U0_ap_ready;
+reg    ap_sync_reg_Block_entry_proc_U0_ap_ready;
+wire    ap_sync_Block_entry_proc_U0_ap_ready;
 wire    ap_ce_reg;
 
 // power-on initialization
 initial begin
-#0 ap_CS_fsm = 6'd1;
-#0 grp_video_preprocess_Pipeline_col_loop_fu_182_ap_start_reg = 1'b0;
-#0 left_b_fu_140 = 8'd0;
-#0 left_g_fu_136 = 8'd0;
-#0 left_r_fu_132 = 8'd0;
-#0 r_fu_144 = 10'd0;
+#0 ap_sync_reg_channel_write_sub126_loc_channel = 1'b0;
+#0 ap_sync_reg_entry_proc_U0_ap_ready = 1'b0;
+#0 ap_sync_reg_Block_entry_proc_U0_ap_ready = 1'b0;
 end
-
-video_preprocess_video_preprocess_Pipeline_col_loop grp_video_preprocess_Pipeline_col_loop_fu_182(
-    .ap_clk(ap_clk),
-    .ap_rst(ap_rst_n_inv),
-    .ap_start(grp_video_preprocess_Pipeline_col_loop_fu_182_ap_start),
-    .ap_done(grp_video_preprocess_Pipeline_col_loop_fu_182_ap_done),
-    .ap_idle(grp_video_preprocess_Pipeline_col_loop_fu_182_ap_idle),
-    .ap_ready(grp_video_preprocess_Pipeline_col_loop_fu_182_ap_ready),
-    .y_dst_TREADY(grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TREADY),
-    .uv_dst_TREADY(grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TREADY),
-    .src_TVALID(src_TVALID_int_regslice),
-    .uv_user_sent_1(uv_user_sent_1_reg_453),
-    .r(r_fu_144),
-    .proc_cols(proc_cols_reg_411),
-    .src_TDATA(src_TDATA_int_regslice),
-    .src_TREADY(grp_video_preprocess_Pipeline_col_loop_fu_182_src_TREADY),
-    .src_TKEEP(src_TKEEP_int_regslice),
-    .src_TSTRB(src_TSTRB_int_regslice),
-    .src_TUSER(src_TUSER_int_regslice),
-    .src_TLAST(src_TLAST_int_regslice),
-    .src_TID(src_TID_int_regslice),
-    .src_TDEST(src_TDEST_int_regslice),
-    .empty_14(trunc_ln96_reg_416),
-    .add_ln104(add_ln104_reg_421),
-    .y_dst_TDATA(grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TDATA),
-    .y_dst_TVALID(grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TVALID),
-    .y_dst_TKEEP(grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TKEEP),
-    .y_dst_TSTRB(grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TSTRB),
-    .y_dst_TUSER(grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TUSER),
-    .y_dst_TLAST(grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TLAST),
-    .y_dst_TID(grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TID),
-    .y_dst_TDEST(grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TDEST),
-    .empty(trunc_ln78_reg_448),
-    .icmp_ln110(icmp_ln80_reg_442),
-    .uv_dst_TDATA(grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TDATA),
-    .uv_dst_TVALID(grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TVALID),
-    .uv_dst_TKEEP(grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TKEEP),
-    .uv_dst_TSTRB(grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TSTRB),
-    .uv_dst_TUSER(grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TUSER),
-    .uv_dst_TLAST(grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TLAST),
-    .uv_dst_TID(grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TID),
-    .uv_dst_TDEST(grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TDEST),
-    .add_ln144(add_ln144_reg_426),
-    .uv_user_sent_2_out(grp_video_preprocess_Pipeline_col_loop_fu_182_uv_user_sent_2_out),
-    .uv_user_sent_2_out_ap_vld(grp_video_preprocess_Pipeline_col_loop_fu_182_uv_user_sent_2_out_ap_vld),
-    .left_b_3_out_i(left_b_fu_140),
-    .left_b_3_out_o(grp_video_preprocess_Pipeline_col_loop_fu_182_left_b_3_out_o),
-    .left_b_3_out_o_ap_vld(grp_video_preprocess_Pipeline_col_loop_fu_182_left_b_3_out_o_ap_vld),
-    .left_g_3_out_i(left_g_fu_136),
-    .left_g_3_out_o(grp_video_preprocess_Pipeline_col_loop_fu_182_left_g_3_out_o),
-    .left_g_3_out_o_ap_vld(grp_video_preprocess_Pipeline_col_loop_fu_182_left_g_3_out_o_ap_vld),
-    .left_r_3_out_i(left_r_fu_132),
-    .left_r_3_out_o(grp_video_preprocess_Pipeline_col_loop_fu_182_left_r_3_out_o),
-    .left_r_3_out_o_ap_vld(grp_video_preprocess_Pipeline_col_loop_fu_182_left_r_3_out_o_ap_vld)
-);
 
 video_preprocess_control_s_axi #(
     .C_S_AXI_ADDR_WIDTH( C_S_AXI_CONTROL_ADDR_WIDTH ),
@@ -409,700 +237,266 @@ control_s_axi_U(
     .ap_idle(ap_idle)
 );
 
-video_preprocess_regslice_both #(
-    .DataWidth( 24 ))
-regslice_both_src_V_data_V_U(
+video_preprocess_entry_proc entry_proc_U0(
     .ap_clk(ap_clk),
     .ap_rst(ap_rst_n_inv),
-    .data_in(src_TDATA),
-    .vld_in(src_TVALID),
-    .ack_in(regslice_both_src_V_data_V_U_ack_in),
-    .data_out(src_TDATA_int_regslice),
-    .vld_out(src_TVALID_int_regslice),
-    .ack_out(src_TREADY_int_regslice),
-    .apdone_blk(regslice_both_src_V_data_V_U_apdone_blk)
+    .ap_start(entry_proc_U0_ap_start),
+    .ap_done(entry_proc_U0_ap_done),
+    .ap_continue(entry_proc_U0_ap_continue),
+    .ap_idle(entry_proc_U0_ap_idle),
+    .ap_ready(entry_proc_U0_ap_ready),
+    .input_is_bgr(input_is_bgr),
+    .input_is_bgr_c_din(entry_proc_U0_input_is_bgr_c_din),
+    .input_is_bgr_c_full_n(input_is_bgr_c_full_n),
+    .input_is_bgr_c_write(entry_proc_U0_input_is_bgr_c_write),
+    .input_is_bgr_c_num_data_valid(input_is_bgr_c_num_data_valid),
+    .input_is_bgr_c_fifo_cap(input_is_bgr_c_fifo_cap)
 );
 
-video_preprocess_regslice_both #(
-    .DataWidth( 3 ))
-regslice_both_src_V_keep_V_U(
+video_preprocess_Block_entry_proc Block_entry_proc_U0(
     .ap_clk(ap_clk),
     .ap_rst(ap_rst_n_inv),
-    .data_in(src_TKEEP),
-    .vld_in(src_TVALID),
-    .ack_in(regslice_both_src_V_keep_V_U_ack_in),
-    .data_out(src_TKEEP_int_regslice),
-    .vld_out(regslice_both_src_V_keep_V_U_vld_out),
-    .ack_out(src_TREADY_int_regslice),
-    .apdone_blk(regslice_both_src_V_keep_V_U_apdone_blk)
+    .ap_start(Block_entry_proc_U0_ap_start),
+    .ap_done(Block_entry_proc_U0_ap_done),
+    .ap_continue(Block_entry_proc_U0_ap_continue),
+    .ap_idle(Block_entry_proc_U0_ap_idle),
+    .ap_ready(Block_entry_proc_U0_ap_ready),
+    .rows(rows),
+    .cols(cols),
+    .ap_return_0(Block_entry_proc_U0_ap_return_0),
+    .ap_return_1(Block_entry_proc_U0_ap_return_1),
+    .ap_return_2(Block_entry_proc_U0_ap_return_2),
+    .ap_return_3(Block_entry_proc_U0_ap_return_3)
 );
 
-video_preprocess_regslice_both #(
-    .DataWidth( 3 ))
-regslice_both_src_V_strb_V_U(
+video_preprocess_Loop_row_loop_proc Loop_row_loop_proc_U0(
     .ap_clk(ap_clk),
     .ap_rst(ap_rst_n_inv),
-    .data_in(src_TSTRB),
-    .vld_in(src_TVALID),
-    .ack_in(regslice_both_src_V_strb_V_U_ack_in),
-    .data_out(src_TSTRB_int_regslice),
-    .vld_out(regslice_both_src_V_strb_V_U_vld_out),
-    .ack_out(src_TREADY_int_regslice),
-    .apdone_blk(regslice_both_src_V_strb_V_U_apdone_blk)
+    .ap_start(Loop_row_loop_proc_U0_ap_start),
+    .ap_done(Loop_row_loop_proc_U0_ap_done),
+    .ap_continue(Loop_row_loop_proc_U0_ap_continue),
+    .ap_idle(Loop_row_loop_proc_U0_ap_idle),
+    .ap_ready(Loop_row_loop_proc_U0_ap_ready),
+    .p_read(proc_rows_0_loc_channel_dout),
+    .p_read1(sub126_loc_channel_dout),
+    .p_read2(sub_loc_channel_dout),
+    .p_read3(proc_cols_0_loc_channel_dout),
+    .input_is_bgr_dout(input_is_bgr_c_dout),
+    .input_is_bgr_empty_n(input_is_bgr_c_empty_n),
+    .input_is_bgr_read(Loop_row_loop_proc_U0_input_is_bgr_read),
+    .input_is_bgr_num_data_valid(input_is_bgr_c_num_data_valid),
+    .input_is_bgr_fifo_cap(input_is_bgr_c_fifo_cap),
+    .src_TDATA(src_TDATA),
+    .src_TVALID(src_TVALID),
+    .src_TREADY(Loop_row_loop_proc_U0_src_TREADY),
+    .src_TKEEP(src_TKEEP),
+    .src_TSTRB(src_TSTRB),
+    .src_TUSER(src_TUSER),
+    .src_TLAST(src_TLAST),
+    .src_TID(src_TID),
+    .src_TDEST(src_TDEST),
+    .y_dst_TDATA(Loop_row_loop_proc_U0_y_dst_TDATA),
+    .y_dst_TVALID(Loop_row_loop_proc_U0_y_dst_TVALID),
+    .y_dst_TREADY(y_dst_TREADY),
+    .y_dst_TKEEP(Loop_row_loop_proc_U0_y_dst_TKEEP),
+    .y_dst_TSTRB(Loop_row_loop_proc_U0_y_dst_TSTRB),
+    .y_dst_TUSER(Loop_row_loop_proc_U0_y_dst_TUSER),
+    .y_dst_TLAST(Loop_row_loop_proc_U0_y_dst_TLAST),
+    .y_dst_TID(Loop_row_loop_proc_U0_y_dst_TID),
+    .y_dst_TDEST(Loop_row_loop_proc_U0_y_dst_TDEST),
+    .uv_dst_TDATA(Loop_row_loop_proc_U0_uv_dst_TDATA),
+    .uv_dst_TVALID(Loop_row_loop_proc_U0_uv_dst_TVALID),
+    .uv_dst_TREADY(uv_dst_TREADY),
+    .uv_dst_TKEEP(Loop_row_loop_proc_U0_uv_dst_TKEEP),
+    .uv_dst_TSTRB(Loop_row_loop_proc_U0_uv_dst_TSTRB),
+    .uv_dst_TUSER(Loop_row_loop_proc_U0_uv_dst_TUSER),
+    .uv_dst_TLAST(Loop_row_loop_proc_U0_uv_dst_TLAST),
+    .uv_dst_TID(Loop_row_loop_proc_U0_uv_dst_TID),
+    .uv_dst_TDEST(Loop_row_loop_proc_U0_uv_dst_TDEST)
 );
 
-video_preprocess_regslice_both #(
-    .DataWidth( 1 ))
-regslice_both_src_V_user_V_U(
-    .ap_clk(ap_clk),
-    .ap_rst(ap_rst_n_inv),
-    .data_in(src_TUSER),
-    .vld_in(src_TVALID),
-    .ack_in(regslice_both_src_V_user_V_U_ack_in),
-    .data_out(src_TUSER_int_regslice),
-    .vld_out(regslice_both_src_V_user_V_U_vld_out),
-    .ack_out(src_TREADY_int_regslice),
-    .apdone_blk(regslice_both_src_V_user_V_U_apdone_blk)
+video_preprocess_fifo_w8_d3_S input_is_bgr_c_U(
+    .clk(ap_clk),
+    .reset(ap_rst_n_inv),
+    .if_read_ce(1'b1),
+    .if_write_ce(1'b1),
+    .if_din(entry_proc_U0_input_is_bgr_c_din),
+    .if_full_n(input_is_bgr_c_full_n),
+    .if_write(entry_proc_U0_input_is_bgr_c_write),
+    .if_dout(input_is_bgr_c_dout),
+    .if_empty_n(input_is_bgr_c_empty_n),
+    .if_read(Loop_row_loop_proc_U0_input_is_bgr_read),
+    .if_num_data_valid(input_is_bgr_c_num_data_valid),
+    .if_fifo_cap(input_is_bgr_c_fifo_cap)
 );
 
-video_preprocess_regslice_both #(
-    .DataWidth( 1 ))
-regslice_both_src_V_last_V_U(
-    .ap_clk(ap_clk),
-    .ap_rst(ap_rst_n_inv),
-    .data_in(src_TLAST),
-    .vld_in(src_TVALID),
-    .ack_in(regslice_both_src_V_last_V_U_ack_in),
-    .data_out(src_TLAST_int_regslice),
-    .vld_out(regslice_both_src_V_last_V_U_vld_out),
-    .ack_out(src_TREADY_int_regslice),
-    .apdone_blk(regslice_both_src_V_last_V_U_apdone_blk)
+video_preprocess_fifo_w10_d2_S proc_rows_0_loc_channel_U(
+    .clk(ap_clk),
+    .reset(ap_rst_n_inv),
+    .if_read_ce(1'b1),
+    .if_write_ce(1'b1),
+    .if_din(Block_entry_proc_U0_ap_return_0),
+    .if_full_n(proc_rows_0_loc_channel_full_n),
+    .if_write(ap_channel_done_sub126_loc_channel),
+    .if_dout(proc_rows_0_loc_channel_dout),
+    .if_empty_n(proc_rows_0_loc_channel_empty_n),
+    .if_read(Loop_row_loop_proc_U0_ap_ready),
+    .if_num_data_valid(proc_rows_0_loc_channel_num_data_valid),
+    .if_fifo_cap(proc_rows_0_loc_channel_fifo_cap)
 );
 
-video_preprocess_regslice_both #(
-    .DataWidth( 1 ))
-regslice_both_src_V_id_V_U(
-    .ap_clk(ap_clk),
-    .ap_rst(ap_rst_n_inv),
-    .data_in(src_TID),
-    .vld_in(src_TVALID),
-    .ack_in(regslice_both_src_V_id_V_U_ack_in),
-    .data_out(src_TID_int_regslice),
-    .vld_out(regslice_both_src_V_id_V_U_vld_out),
-    .ack_out(src_TREADY_int_regslice),
-    .apdone_blk(regslice_both_src_V_id_V_U_apdone_blk)
+video_preprocess_fifo_w11_d2_S proc_cols_0_loc_channel_U(
+    .clk(ap_clk),
+    .reset(ap_rst_n_inv),
+    .if_read_ce(1'b1),
+    .if_write_ce(1'b1),
+    .if_din(Block_entry_proc_U0_ap_return_1),
+    .if_full_n(proc_cols_0_loc_channel_full_n),
+    .if_write(ap_channel_done_sub126_loc_channel),
+    .if_dout(proc_cols_0_loc_channel_dout),
+    .if_empty_n(proc_cols_0_loc_channel_empty_n),
+    .if_read(Loop_row_loop_proc_U0_ap_ready),
+    .if_num_data_valid(proc_cols_0_loc_channel_num_data_valid),
+    .if_fifo_cap(proc_cols_0_loc_channel_fifo_cap)
 );
 
-video_preprocess_regslice_both #(
-    .DataWidth( 1 ))
-regslice_both_src_V_dest_V_U(
-    .ap_clk(ap_clk),
-    .ap_rst(ap_rst_n_inv),
-    .data_in(src_TDEST),
-    .vld_in(src_TVALID),
-    .ack_in(regslice_both_src_V_dest_V_U_ack_in),
-    .data_out(src_TDEST_int_regslice),
-    .vld_out(regslice_both_src_V_dest_V_U_vld_out),
-    .ack_out(src_TREADY_int_regslice),
-    .apdone_blk(regslice_both_src_V_dest_V_U_apdone_blk)
+video_preprocess_fifo_w12_d2_S sub_loc_channel_U(
+    .clk(ap_clk),
+    .reset(ap_rst_n_inv),
+    .if_read_ce(1'b1),
+    .if_write_ce(1'b1),
+    .if_din(Block_entry_proc_U0_ap_return_2),
+    .if_full_n(sub_loc_channel_full_n),
+    .if_write(ap_channel_done_sub126_loc_channel),
+    .if_dout(sub_loc_channel_dout),
+    .if_empty_n(sub_loc_channel_empty_n),
+    .if_read(Loop_row_loop_proc_U0_ap_ready),
+    .if_num_data_valid(sub_loc_channel_num_data_valid),
+    .if_fifo_cap(sub_loc_channel_fifo_cap)
 );
 
-video_preprocess_regslice_both #(
-    .DataWidth( 8 ))
-regslice_both_y_dst_V_data_V_U(
-    .ap_clk(ap_clk),
-    .ap_rst(ap_rst_n_inv),
-    .data_in(y_dst_TDATA_int_regslice),
-    .vld_in(grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TVALID),
-    .ack_in(y_dst_TREADY_int_regslice),
-    .data_out(y_dst_TDATA),
-    .vld_out(regslice_both_y_dst_V_data_V_U_vld_out),
-    .ack_out(y_dst_TREADY),
-    .apdone_blk(regslice_both_y_dst_V_data_V_U_apdone_blk)
-);
-
-video_preprocess_regslice_both #(
-    .DataWidth( 1 ))
-regslice_both_y_dst_V_keep_V_U(
-    .ap_clk(ap_clk),
-    .ap_rst(ap_rst_n_inv),
-    .data_in(y_dst_TKEEP_int_regslice),
-    .vld_in(grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TVALID),
-    .ack_in(regslice_both_y_dst_V_keep_V_U_ack_in_dummy),
-    .data_out(y_dst_TKEEP),
-    .vld_out(regslice_both_y_dst_V_keep_V_U_vld_out),
-    .ack_out(y_dst_TREADY),
-    .apdone_blk(regslice_both_y_dst_V_keep_V_U_apdone_blk)
-);
-
-video_preprocess_regslice_both #(
-    .DataWidth( 1 ))
-regslice_both_y_dst_V_strb_V_U(
-    .ap_clk(ap_clk),
-    .ap_rst(ap_rst_n_inv),
-    .data_in(y_dst_TSTRB_int_regslice),
-    .vld_in(grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TVALID),
-    .ack_in(regslice_both_y_dst_V_strb_V_U_ack_in_dummy),
-    .data_out(y_dst_TSTRB),
-    .vld_out(regslice_both_y_dst_V_strb_V_U_vld_out),
-    .ack_out(y_dst_TREADY),
-    .apdone_blk(regslice_both_y_dst_V_strb_V_U_apdone_blk)
-);
-
-video_preprocess_regslice_both #(
-    .DataWidth( 1 ))
-regslice_both_y_dst_V_user_V_U(
-    .ap_clk(ap_clk),
-    .ap_rst(ap_rst_n_inv),
-    .data_in(y_dst_TUSER_int_regslice),
-    .vld_in(grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TVALID),
-    .ack_in(regslice_both_y_dst_V_user_V_U_ack_in_dummy),
-    .data_out(y_dst_TUSER),
-    .vld_out(regslice_both_y_dst_V_user_V_U_vld_out),
-    .ack_out(y_dst_TREADY),
-    .apdone_blk(regslice_both_y_dst_V_user_V_U_apdone_blk)
-);
-
-video_preprocess_regslice_both #(
-    .DataWidth( 1 ))
-regslice_both_y_dst_V_last_V_U(
-    .ap_clk(ap_clk),
-    .ap_rst(ap_rst_n_inv),
-    .data_in(y_dst_TLAST_int_regslice),
-    .vld_in(grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TVALID),
-    .ack_in(regslice_both_y_dst_V_last_V_U_ack_in_dummy),
-    .data_out(y_dst_TLAST),
-    .vld_out(regslice_both_y_dst_V_last_V_U_vld_out),
-    .ack_out(y_dst_TREADY),
-    .apdone_blk(regslice_both_y_dst_V_last_V_U_apdone_blk)
-);
-
-video_preprocess_regslice_both #(
-    .DataWidth( 1 ))
-regslice_both_y_dst_V_id_V_U(
-    .ap_clk(ap_clk),
-    .ap_rst(ap_rst_n_inv),
-    .data_in(y_dst_TID_int_regslice),
-    .vld_in(grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TVALID),
-    .ack_in(regslice_both_y_dst_V_id_V_U_ack_in_dummy),
-    .data_out(y_dst_TID),
-    .vld_out(regslice_both_y_dst_V_id_V_U_vld_out),
-    .ack_out(y_dst_TREADY),
-    .apdone_blk(regslice_both_y_dst_V_id_V_U_apdone_blk)
-);
-
-video_preprocess_regslice_both #(
-    .DataWidth( 1 ))
-regslice_both_y_dst_V_dest_V_U(
-    .ap_clk(ap_clk),
-    .ap_rst(ap_rst_n_inv),
-    .data_in(y_dst_TDEST_int_regslice),
-    .vld_in(grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TVALID),
-    .ack_in(regslice_both_y_dst_V_dest_V_U_ack_in_dummy),
-    .data_out(y_dst_TDEST),
-    .vld_out(regslice_both_y_dst_V_dest_V_U_vld_out),
-    .ack_out(y_dst_TREADY),
-    .apdone_blk(regslice_both_y_dst_V_dest_V_U_apdone_blk)
-);
-
-video_preprocess_regslice_both #(
-    .DataWidth( 8 ))
-regslice_both_uv_dst_V_data_V_U(
-    .ap_clk(ap_clk),
-    .ap_rst(ap_rst_n_inv),
-    .data_in(uv_dst_TDATA_int_regslice),
-    .vld_in(grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TVALID),
-    .ack_in(uv_dst_TREADY_int_regslice),
-    .data_out(uv_dst_TDATA),
-    .vld_out(regslice_both_uv_dst_V_data_V_U_vld_out),
-    .ack_out(uv_dst_TREADY),
-    .apdone_blk(regslice_both_uv_dst_V_data_V_U_apdone_blk)
-);
-
-video_preprocess_regslice_both #(
-    .DataWidth( 1 ))
-regslice_both_uv_dst_V_keep_V_U(
-    .ap_clk(ap_clk),
-    .ap_rst(ap_rst_n_inv),
-    .data_in(uv_dst_TKEEP_int_regslice),
-    .vld_in(grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TVALID),
-    .ack_in(regslice_both_uv_dst_V_keep_V_U_ack_in_dummy),
-    .data_out(uv_dst_TKEEP),
-    .vld_out(regslice_both_uv_dst_V_keep_V_U_vld_out),
-    .ack_out(uv_dst_TREADY),
-    .apdone_blk(regslice_both_uv_dst_V_keep_V_U_apdone_blk)
-);
-
-video_preprocess_regslice_both #(
-    .DataWidth( 1 ))
-regslice_both_uv_dst_V_strb_V_U(
-    .ap_clk(ap_clk),
-    .ap_rst(ap_rst_n_inv),
-    .data_in(uv_dst_TSTRB_int_regslice),
-    .vld_in(grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TVALID),
-    .ack_in(regslice_both_uv_dst_V_strb_V_U_ack_in_dummy),
-    .data_out(uv_dst_TSTRB),
-    .vld_out(regslice_both_uv_dst_V_strb_V_U_vld_out),
-    .ack_out(uv_dst_TREADY),
-    .apdone_blk(regslice_both_uv_dst_V_strb_V_U_apdone_blk)
-);
-
-video_preprocess_regslice_both #(
-    .DataWidth( 1 ))
-regslice_both_uv_dst_V_user_V_U(
-    .ap_clk(ap_clk),
-    .ap_rst(ap_rst_n_inv),
-    .data_in(uv_dst_TUSER_int_regslice),
-    .vld_in(grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TVALID),
-    .ack_in(regslice_both_uv_dst_V_user_V_U_ack_in_dummy),
-    .data_out(uv_dst_TUSER),
-    .vld_out(regslice_both_uv_dst_V_user_V_U_vld_out),
-    .ack_out(uv_dst_TREADY),
-    .apdone_blk(regslice_both_uv_dst_V_user_V_U_apdone_blk)
-);
-
-video_preprocess_regslice_both #(
-    .DataWidth( 1 ))
-regslice_both_uv_dst_V_last_V_U(
-    .ap_clk(ap_clk),
-    .ap_rst(ap_rst_n_inv),
-    .data_in(uv_dst_TLAST_int_regslice),
-    .vld_in(grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TVALID),
-    .ack_in(regslice_both_uv_dst_V_last_V_U_ack_in_dummy),
-    .data_out(uv_dst_TLAST),
-    .vld_out(regslice_both_uv_dst_V_last_V_U_vld_out),
-    .ack_out(uv_dst_TREADY),
-    .apdone_blk(regslice_both_uv_dst_V_last_V_U_apdone_blk)
-);
-
-video_preprocess_regslice_both #(
-    .DataWidth( 1 ))
-regslice_both_uv_dst_V_id_V_U(
-    .ap_clk(ap_clk),
-    .ap_rst(ap_rst_n_inv),
-    .data_in(uv_dst_TID_int_regslice),
-    .vld_in(grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TVALID),
-    .ack_in(regslice_both_uv_dst_V_id_V_U_ack_in_dummy),
-    .data_out(uv_dst_TID),
-    .vld_out(regslice_both_uv_dst_V_id_V_U_vld_out),
-    .ack_out(uv_dst_TREADY),
-    .apdone_blk(regslice_both_uv_dst_V_id_V_U_apdone_blk)
-);
-
-video_preprocess_regslice_both #(
-    .DataWidth( 1 ))
-regslice_both_uv_dst_V_dest_V_U(
-    .ap_clk(ap_clk),
-    .ap_rst(ap_rst_n_inv),
-    .data_in(uv_dst_TDEST_int_regslice),
-    .vld_in(grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TVALID),
-    .ack_in(regslice_both_uv_dst_V_dest_V_U_ack_in_dummy),
-    .data_out(uv_dst_TDEST),
-    .vld_out(regslice_both_uv_dst_V_dest_V_U_vld_out),
-    .ack_out(uv_dst_TREADY),
-    .apdone_blk(regslice_both_uv_dst_V_dest_V_U_apdone_blk)
+video_preprocess_fifo_w12_d2_S sub126_loc_channel_U(
+    .clk(ap_clk),
+    .reset(ap_rst_n_inv),
+    .if_read_ce(1'b1),
+    .if_write_ce(1'b1),
+    .if_din(Block_entry_proc_U0_ap_return_3),
+    .if_full_n(sub126_loc_channel_full_n),
+    .if_write(ap_channel_done_sub126_loc_channel),
+    .if_dout(sub126_loc_channel_dout),
+    .if_empty_n(sub126_loc_channel_empty_n),
+    .if_read(Loop_row_loop_proc_U0_ap_ready),
+    .if_num_data_valid(sub126_loc_channel_num_data_valid),
+    .if_fifo_cap(sub126_loc_channel_fifo_cap)
 );
 
 always @ (posedge ap_clk) begin
     if (ap_rst_n_inv == 1'b1) begin
-        ap_CS_fsm <= ap_ST_fsm_state1;
+        ap_sync_reg_Block_entry_proc_U0_ap_ready <= 1'b0;
     end else begin
-        ap_CS_fsm <= ap_NS_fsm;
+        if (((ap_sync_ready & ap_start) == 1'b1)) begin
+            ap_sync_reg_Block_entry_proc_U0_ap_ready <= 1'b0;
+        end else begin
+            ap_sync_reg_Block_entry_proc_U0_ap_ready <= ap_sync_Block_entry_proc_U0_ap_ready;
+        end
     end
 end
 
 always @ (posedge ap_clk) begin
     if (ap_rst_n_inv == 1'b1) begin
-        grp_video_preprocess_Pipeline_col_loop_fu_182_ap_start_reg <= 1'b0;
+        ap_sync_reg_channel_write_sub126_loc_channel <= 1'b0;
     end else begin
-        if ((1'b1 == ap_CS_fsm_state3)) begin
-            grp_video_preprocess_Pipeline_col_loop_fu_182_ap_start_reg <= 1'b1;
-        end else if ((grp_video_preprocess_Pipeline_col_loop_fu_182_ap_ready == 1'b1)) begin
-            grp_video_preprocess_Pipeline_col_loop_fu_182_ap_start_reg <= 1'b0;
+        if (((Block_entry_proc_U0_ap_done & Block_entry_proc_U0_ap_continue) == 1'b1)) begin
+            ap_sync_reg_channel_write_sub126_loc_channel <= 1'b0;
+        end else begin
+            ap_sync_reg_channel_write_sub126_loc_channel <= ap_sync_channel_write_sub126_loc_channel;
         end
     end
 end
 
 always @ (posedge ap_clk) begin
-    if (((1'b1 == ap_CS_fsm_state1) & (ap_start == 1'b1))) begin
-        left_b_fu_140 <= 8'd0;
-    end else if (((1'b1 == ap_CS_fsm_state4) & (grp_video_preprocess_Pipeline_col_loop_fu_182_left_b_3_out_o_ap_vld == 1'b1))) begin
-        left_b_fu_140 <= grp_video_preprocess_Pipeline_col_loop_fu_182_left_b_3_out_o;
-    end
-end
-
-always @ (posedge ap_clk) begin
-    if (((1'b1 == ap_CS_fsm_state1) & (ap_start == 1'b1))) begin
-        left_g_fu_136 <= 8'd0;
-    end else if (((1'b1 == ap_CS_fsm_state4) & (grp_video_preprocess_Pipeline_col_loop_fu_182_left_g_3_out_o_ap_vld == 1'b1))) begin
-        left_g_fu_136 <= grp_video_preprocess_Pipeline_col_loop_fu_182_left_g_3_out_o;
-    end
-end
-
-always @ (posedge ap_clk) begin
-    if (((1'b1 == ap_CS_fsm_state1) & (ap_start == 1'b1))) begin
-        left_r_fu_132 <= 8'd0;
-    end else if (((1'b1 == ap_CS_fsm_state4) & (grp_video_preprocess_Pipeline_col_loop_fu_182_left_r_3_out_o_ap_vld == 1'b1))) begin
-        left_r_fu_132 <= grp_video_preprocess_Pipeline_col_loop_fu_182_left_r_3_out_o;
-    end
-end
-
-always @ (posedge ap_clk) begin
-    if (((1'b1 == ap_CS_fsm_state1) & (ap_start == 1'b1))) begin
-        r_fu_144 <= 10'd0;
-    end else if ((1'b1 == ap_CS_fsm_state5)) begin
-        r_fu_144 <= r_3_reg_437;
-    end
-end
-
-always @ (posedge ap_clk) begin
-    if ((1'b1 == ap_CS_fsm_state5)) begin
-        uv_user_sent_reg_170 <= grp_video_preprocess_Pipeline_col_loop_fu_182_uv_user_sent_2_out;
-    end else if (((1'b1 == ap_CS_fsm_state1) & (ap_start == 1'b1))) begin
-        uv_user_sent_reg_170 <= 1'd0;
-    end
-end
-
-always @ (posedge ap_clk) begin
-    if ((1'b1 == ap_CS_fsm_state1)) begin
-        add_ln104_reg_421 <= add_ln104_fu_306_p2;
-        add_ln144_reg_426[11 : 1] <= add_ln144_fu_312_p2[11 : 1];
-        proc_cols_reg_411 <= proc_cols_fu_268_p3;
-        proc_rows_reg_406 <= proc_rows_fu_250_p3;
-        trunc_ln96_reg_416 <= trunc_ln96_fu_302_p1;
-    end
-end
-
-always @ (posedge ap_clk) begin
-    if ((1'b1 == ap_CS_fsm_state2)) begin
-        icmp_ln80_reg_442 <= icmp_ln80_fu_352_p2;
-        r_3_reg_437 <= r_3_fu_346_p2;
-    end
-end
-
-always @ (posedge ap_clk) begin
-    if ((1'b1 == ap_CS_fsm_state3)) begin
-        trunc_ln78_reg_448 <= trunc_ln78_fu_358_p1;
-        uv_user_sent_1_reg_453 <= uv_user_sent_1_fu_362_p2;
-    end
-end
-
-always @ (posedge ap_clk) begin
-    if (((1'b1 == ap_CS_fsm_state4) & (grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TVALID == 1'b1))) begin
-        uv_dst_TDATA_reg <= grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TDATA;
-        uv_dst_TDEST_reg <= grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TDEST;
-        uv_dst_TID_reg <= grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TID;
-        uv_dst_TKEEP_reg <= grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TKEEP;
-        uv_dst_TLAST_reg <= grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TLAST;
-        uv_dst_TSTRB_reg <= grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TSTRB;
-        uv_dst_TUSER_reg <= grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TUSER;
-    end
-end
-
-always @ (posedge ap_clk) begin
-    if (((1'b1 == ap_CS_fsm_state4) & (grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TVALID == 1'b1))) begin
-        y_dst_TDATA_reg <= grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TDATA;
-        y_dst_TDEST_reg <= grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TDEST;
-        y_dst_TID_reg <= grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TID;
-        y_dst_TKEEP_reg <= grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TKEEP;
-        y_dst_TLAST_reg <= grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TLAST;
-        y_dst_TSTRB_reg <= grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TSTRB;
-        y_dst_TUSER_reg <= grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TUSER;
-    end
-end
-
-always @ (*) begin
-    if ((ap_start == 1'b0)) begin
-        ap_ST_fsm_state1_blk = 1'b1;
+    if (ap_rst_n_inv == 1'b1) begin
+        ap_sync_reg_entry_proc_U0_ap_ready <= 1'b0;
     end else begin
-        ap_ST_fsm_state1_blk = 1'b0;
-    end
-end
-
-assign ap_ST_fsm_state2_blk = 1'b0;
-
-assign ap_ST_fsm_state3_blk = 1'b0;
-
-always @ (*) begin
-    if ((grp_video_preprocess_Pipeline_col_loop_fu_182_ap_done == 1'b0)) begin
-        ap_ST_fsm_state4_blk = 1'b1;
-    end else begin
-        ap_ST_fsm_state4_blk = 1'b0;
-    end
-end
-
-assign ap_ST_fsm_state5_blk = 1'b0;
-
-always @ (*) begin
-    if ((1'b1 == ap_block_state6)) begin
-        ap_ST_fsm_state6_blk = 1'b1;
-    end else begin
-        ap_ST_fsm_state6_blk = 1'b0;
-    end
-end
-
-always @ (*) begin
-    if (((1'b0 == ap_block_state6) & (1'b1 == ap_CS_fsm_state6))) begin
-        ap_done = 1'b1;
-    end else begin
-        ap_done = 1'b0;
-    end
-end
-
-always @ (*) begin
-    if (((1'b1 == ap_CS_fsm_state1) & (ap_start == 1'b0))) begin
-        ap_idle = 1'b1;
-    end else begin
-        ap_idle = 1'b0;
-    end
-end
-
-always @ (*) begin
-    if (((1'b0 == ap_block_state6) & (1'b1 == ap_CS_fsm_state6))) begin
-        ap_ready = 1'b1;
-    end else begin
-        ap_ready = 1'b0;
-    end
-end
-
-always @ (*) begin
-    if ((1'b1 == ap_CS_fsm_state4)) begin
-        src_TREADY_int_regslice = grp_video_preprocess_Pipeline_col_loop_fu_182_src_TREADY;
-    end else begin
-        src_TREADY_int_regslice = 1'b0;
-    end
-end
-
-always @ (*) begin
-    if (((1'b1 == ap_CS_fsm_state4) & (grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TVALID == 1'b1))) begin
-        uv_dst_TDATA_int_regslice = grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TDATA;
-    end else begin
-        uv_dst_TDATA_int_regslice = uv_dst_TDATA_reg;
-    end
-end
-
-always @ (*) begin
-    if (((1'b1 == ap_CS_fsm_state4) & (grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TVALID == 1'b1))) begin
-        uv_dst_TDEST_int_regslice = grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TDEST;
-    end else begin
-        uv_dst_TDEST_int_regslice = uv_dst_TDEST_reg;
-    end
-end
-
-always @ (*) begin
-    if (((1'b1 == ap_CS_fsm_state4) & (grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TVALID == 1'b1))) begin
-        uv_dst_TID_int_regslice = grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TID;
-    end else begin
-        uv_dst_TID_int_regslice = uv_dst_TID_reg;
-    end
-end
-
-always @ (*) begin
-    if (((1'b1 == ap_CS_fsm_state4) & (grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TVALID == 1'b1))) begin
-        uv_dst_TKEEP_int_regslice = grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TKEEP;
-    end else begin
-        uv_dst_TKEEP_int_regslice = uv_dst_TKEEP_reg;
-    end
-end
-
-always @ (*) begin
-    if (((1'b1 == ap_CS_fsm_state4) & (grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TVALID == 1'b1))) begin
-        uv_dst_TLAST_int_regslice = grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TLAST;
-    end else begin
-        uv_dst_TLAST_int_regslice = uv_dst_TLAST_reg;
-    end
-end
-
-always @ (*) begin
-    if (((1'b1 == ap_CS_fsm_state4) & (grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TVALID == 1'b1))) begin
-        uv_dst_TSTRB_int_regslice = grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TSTRB;
-    end else begin
-        uv_dst_TSTRB_int_regslice = uv_dst_TSTRB_reg;
-    end
-end
-
-always @ (*) begin
-    if (((1'b1 == ap_CS_fsm_state4) & (grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TVALID == 1'b1))) begin
-        uv_dst_TUSER_int_regslice = grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TUSER;
-    end else begin
-        uv_dst_TUSER_int_regslice = uv_dst_TUSER_reg;
-    end
-end
-
-always @ (*) begin
-    if (((1'b1 == ap_CS_fsm_state4) & (grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TVALID == 1'b1))) begin
-        y_dst_TDATA_int_regslice = grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TDATA;
-    end else begin
-        y_dst_TDATA_int_regslice = y_dst_TDATA_reg;
-    end
-end
-
-always @ (*) begin
-    if (((1'b1 == ap_CS_fsm_state4) & (grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TVALID == 1'b1))) begin
-        y_dst_TDEST_int_regslice = grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TDEST;
-    end else begin
-        y_dst_TDEST_int_regslice = y_dst_TDEST_reg;
-    end
-end
-
-always @ (*) begin
-    if (((1'b1 == ap_CS_fsm_state4) & (grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TVALID == 1'b1))) begin
-        y_dst_TID_int_regslice = grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TID;
-    end else begin
-        y_dst_TID_int_regslice = y_dst_TID_reg;
-    end
-end
-
-always @ (*) begin
-    if (((1'b1 == ap_CS_fsm_state4) & (grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TVALID == 1'b1))) begin
-        y_dst_TKEEP_int_regslice = grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TKEEP;
-    end else begin
-        y_dst_TKEEP_int_regslice = y_dst_TKEEP_reg;
-    end
-end
-
-always @ (*) begin
-    if (((1'b1 == ap_CS_fsm_state4) & (grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TVALID == 1'b1))) begin
-        y_dst_TLAST_int_regslice = grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TLAST;
-    end else begin
-        y_dst_TLAST_int_regslice = y_dst_TLAST_reg;
-    end
-end
-
-always @ (*) begin
-    if (((1'b1 == ap_CS_fsm_state4) & (grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TVALID == 1'b1))) begin
-        y_dst_TSTRB_int_regslice = grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TSTRB;
-    end else begin
-        y_dst_TSTRB_int_regslice = y_dst_TSTRB_reg;
-    end
-end
-
-always @ (*) begin
-    if (((1'b1 == ap_CS_fsm_state4) & (grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TVALID == 1'b1))) begin
-        y_dst_TUSER_int_regslice = grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TUSER;
-    end else begin
-        y_dst_TUSER_int_regslice = y_dst_TUSER_reg;
-    end
-end
-
-always @ (*) begin
-    case (ap_CS_fsm)
-        ap_ST_fsm_state1 : begin
-            if (((1'b1 == ap_CS_fsm_state1) & (ap_start == 1'b1))) begin
-                ap_NS_fsm = ap_ST_fsm_state2;
-            end else begin
-                ap_NS_fsm = ap_ST_fsm_state1;
-            end
+        if (((ap_sync_ready & ap_start) == 1'b1)) begin
+            ap_sync_reg_entry_proc_U0_ap_ready <= 1'b0;
+        end else begin
+            ap_sync_reg_entry_proc_U0_ap_ready <= ap_sync_entry_proc_U0_ap_ready;
         end
-        ap_ST_fsm_state2 : begin
-            if (((icmp_ln78_fu_341_p2 == 1'd1) & (1'b1 == ap_CS_fsm_state2))) begin
-                ap_NS_fsm = ap_ST_fsm_state6;
-            end else begin
-                ap_NS_fsm = ap_ST_fsm_state3;
-            end
-        end
-        ap_ST_fsm_state3 : begin
-            ap_NS_fsm = ap_ST_fsm_state4;
-        end
-        ap_ST_fsm_state4 : begin
-            if (((grp_video_preprocess_Pipeline_col_loop_fu_182_ap_done == 1'b1) & (1'b1 == ap_CS_fsm_state4))) begin
-                ap_NS_fsm = ap_ST_fsm_state5;
-            end else begin
-                ap_NS_fsm = ap_ST_fsm_state4;
-            end
-        end
-        ap_ST_fsm_state5 : begin
-            ap_NS_fsm = ap_ST_fsm_state2;
-        end
-        ap_ST_fsm_state6 : begin
-            if (((1'b0 == ap_block_state6) & (1'b1 == ap_CS_fsm_state6))) begin
-                ap_NS_fsm = ap_ST_fsm_state1;
-            end else begin
-                ap_NS_fsm = ap_ST_fsm_state6;
-            end
-        end
-        default : begin
-            ap_NS_fsm = 'bx;
-        end
-    endcase
+    end
 end
 
-assign add_ln104_fu_306_p2 = ($signed(zext_ln58_fu_276_p1) + $signed(12'd4095));
+assign Block_entry_proc_U0_ap_continue = ap_sync_channel_write_sub126_loc_channel;
 
-assign add_ln144_fu_312_p2 = ($signed(zext_ln71_fu_298_p1) + $signed(12'd4095));
+assign Block_entry_proc_U0_ap_start = ((ap_sync_reg_Block_entry_proc_U0_ap_ready ^ 1'b1) & ap_start & 1'b1);
 
-assign ap_CS_fsm_state1 = ap_CS_fsm[32'd0];
+assign Loop_row_loop_proc_U0_ap_continue = 1'b1;
 
-assign ap_CS_fsm_state2 = ap_CS_fsm[32'd1];
+assign Loop_row_loop_proc_U0_ap_start = proc_rows_0_loc_channel_empty_n;
 
-assign ap_CS_fsm_state3 = ap_CS_fsm[32'd2];
+assign ap_channel_done_sub126_loc_channel = ((ap_sync_reg_channel_write_sub126_loc_channel ^ 1'b1) & Block_entry_proc_U0_ap_done);
 
-assign ap_CS_fsm_state4 = ap_CS_fsm[32'd3];
+assign ap_done = Loop_row_loop_proc_U0_ap_done;
 
-assign ap_CS_fsm_state5 = ap_CS_fsm[32'd4];
+assign ap_idle = ((proc_rows_0_loc_channel_empty_n ^ 1'b1) & entry_proc_U0_ap_idle & Loop_row_loop_proc_U0_ap_idle & Block_entry_proc_U0_ap_idle);
 
-assign ap_CS_fsm_state6 = ap_CS_fsm[32'd5];
-
-always @ (*) begin
-    ap_block_state6 = ((regslice_both_uv_dst_V_data_V_U_apdone_blk == 1'b1) | (regslice_both_y_dst_V_data_V_U_apdone_blk == 1'b1));
-end
+assign ap_ready = ap_sync_ready;
 
 always @ (*) begin
     ap_rst_n_inv = ~ap_rst_n;
 end
 
-assign even_cols_fu_290_p3 = {{tmp_1_fu_280_p4}, {1'd0}};
+assign ap_sync_Block_entry_proc_U0_ap_ready = (ap_sync_reg_Block_entry_proc_U0_ap_ready | Block_entry_proc_U0_ap_ready);
 
-assign grp_video_preprocess_Pipeline_col_loop_fu_182_ap_start = grp_video_preprocess_Pipeline_col_loop_fu_182_ap_start_reg;
+assign ap_sync_channel_write_sub126_loc_channel = ((sub126_loc_channel_full_n & ap_channel_done_sub126_loc_channel) | ap_sync_reg_channel_write_sub126_loc_channel);
 
-assign grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TREADY = (uv_dst_TREADY_int_regslice & ap_CS_fsm_state4);
+assign ap_sync_entry_proc_U0_ap_ready = (entry_proc_U0_ap_ready | ap_sync_reg_entry_proc_U0_ap_ready);
 
-assign grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TREADY = (y_dst_TREADY_int_regslice & ap_CS_fsm_state4);
+assign ap_sync_ready = (ap_sync_entry_proc_U0_ap_ready & ap_sync_Block_entry_proc_U0_ap_ready);
 
-assign icmp_ln60_fu_240_p2 = ((rows > 16'd720) ? 1'b1 : 1'b0);
+assign entry_proc_U0_ap_continue = 1'b1;
 
-assign icmp_ln66_fu_258_p2 = ((cols > 16'd1280) ? 1'b1 : 1'b0);
+assign entry_proc_U0_ap_start = ((ap_sync_reg_entry_proc_U0_ap_ready ^ 1'b1) & ap_start & 1'b1);
 
-assign icmp_ln78_fu_341_p2 = ((r_fu_144 == proc_rows_reg_406) ? 1'b1 : 1'b0);
+assign src_TREADY = Loop_row_loop_proc_U0_src_TREADY;
 
-assign icmp_ln80_fu_352_p2 = ((r_fu_144 != 10'd0) ? 1'b1 : 1'b0);
+assign uv_dst_TDATA = Loop_row_loop_proc_U0_uv_dst_TDATA;
 
-assign proc_cols_fu_268_p3 = ((icmp_ln66_fu_258_p2[0:0] == 1'b1) ? 11'd1280 : trunc_ln58_1_fu_264_p1);
+assign uv_dst_TDEST = Loop_row_loop_proc_U0_uv_dst_TDEST;
 
-assign proc_rows_fu_250_p3 = ((icmp_ln60_fu_240_p2[0:0] == 1'b1) ? 10'd720 : trunc_ln58_fu_246_p1);
+assign uv_dst_TID = Loop_row_loop_proc_U0_uv_dst_TID;
 
-assign r_3_fu_346_p2 = (r_fu_144 + 10'd1);
+assign uv_dst_TKEEP = Loop_row_loop_proc_U0_uv_dst_TKEEP;
 
-assign src_TREADY = regslice_both_src_V_data_V_U_ack_in;
+assign uv_dst_TLAST = Loop_row_loop_proc_U0_uv_dst_TLAST;
 
-assign tmp_1_fu_280_p4 = {{proc_cols_fu_268_p3[10:1]}};
+assign uv_dst_TSTRB = Loop_row_loop_proc_U0_uv_dst_TSTRB;
 
-assign trunc_ln58_1_fu_264_p1 = cols[10:0];
+assign uv_dst_TUSER = Loop_row_loop_proc_U0_uv_dst_TUSER;
 
-assign trunc_ln58_fu_246_p1 = rows[9:0];
+assign uv_dst_TVALID = Loop_row_loop_proc_U0_uv_dst_TVALID;
 
-assign trunc_ln78_fu_358_p1 = r_fu_144[0:0];
+assign y_dst_TDATA = Loop_row_loop_proc_U0_y_dst_TDATA;
 
-assign trunc_ln96_fu_302_p1 = input_is_bgr[0:0];
+assign y_dst_TDEST = Loop_row_loop_proc_U0_y_dst_TDEST;
 
-assign uv_dst_TVALID = regslice_both_uv_dst_V_data_V_U_vld_out;
+assign y_dst_TID = Loop_row_loop_proc_U0_y_dst_TID;
 
-assign uv_dst_TVALID_int_regslice = grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TVALID;
+assign y_dst_TKEEP = Loop_row_loop_proc_U0_y_dst_TKEEP;
 
-assign uv_user_sent_1_fu_362_p2 = (uv_user_sent_reg_170 & icmp_ln80_reg_442);
+assign y_dst_TLAST = Loop_row_loop_proc_U0_y_dst_TLAST;
 
-assign y_dst_TVALID = regslice_both_y_dst_V_data_V_U_vld_out;
+assign y_dst_TSTRB = Loop_row_loop_proc_U0_y_dst_TSTRB;
 
-assign y_dst_TVALID_int_regslice = grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TVALID;
+assign y_dst_TUSER = Loop_row_loop_proc_U0_y_dst_TUSER;
 
-assign zext_ln58_fu_276_p1 = proc_cols_fu_268_p3;
+assign y_dst_TVALID = Loop_row_loop_proc_U0_y_dst_TVALID;
 
-assign zext_ln71_fu_298_p1 = even_cols_fu_290_p3;
 
-always @ (posedge ap_clk) begin
-    add_ln144_reg_426[0] <= 1'b1;
-end
-
+reg find_df_deadlock = 0;
+// synthesis translate_off
+`include "video_preprocess_hls_deadlock_detector.vh"
+// synthesis translate_on
 
 reg find_kernel_block = 0;
 // synthesis translate_off

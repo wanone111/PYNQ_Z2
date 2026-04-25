@@ -1,11 +1,11 @@
 `timescale 1 ns / 1 ps
 
-module video_preprocess_hls_deadlock_idx1_monitor ( // for module video_preprocess_video_preprocess_inst.grp_video_preprocess_Pipeline_col_loop_fu_182
+module video_preprocess_hls_deadlock_idx1_monitor ( // for module video_preprocess_video_preprocess_inst.Loop_row_loop_proc_U0
     input wire clock,
     input wire reset,
     input wire [2:0] axis_block_sigs,
-    input wire [1:0] inst_idle_sigs,
-    input wire [0:0] inst_block_sigs,
+    input wire [4:0] inst_idle_sigs,
+    input wire [2:0] inst_block_sigs,
     output wire block
 );
 

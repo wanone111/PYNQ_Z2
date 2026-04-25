@@ -13,35 +13,6 @@ generic (
     C_S_AXI_CONTROL_ADDR_WIDTH : INTEGER := 6;
     C_S_AXI_CONTROL_DATA_WIDTH : INTEGER := 32 );
 port (
-    ap_clk : IN STD_LOGIC;
-    ap_rst_n : IN STD_LOGIC;
-    src_TDATA : IN STD_LOGIC_VECTOR (23 downto 0);
-    src_TVALID : IN STD_LOGIC;
-    src_TREADY : OUT STD_LOGIC;
-    src_TKEEP : IN STD_LOGIC_VECTOR (2 downto 0);
-    src_TSTRB : IN STD_LOGIC_VECTOR (2 downto 0);
-    src_TUSER : IN STD_LOGIC_VECTOR (0 downto 0);
-    src_TLAST : IN STD_LOGIC_VECTOR (0 downto 0);
-    src_TID : IN STD_LOGIC_VECTOR (0 downto 0);
-    src_TDEST : IN STD_LOGIC_VECTOR (0 downto 0);
-    y_dst_TDATA : OUT STD_LOGIC_VECTOR (7 downto 0);
-    y_dst_TVALID : OUT STD_LOGIC;
-    y_dst_TREADY : IN STD_LOGIC;
-    y_dst_TKEEP : OUT STD_LOGIC_VECTOR (0 downto 0);
-    y_dst_TSTRB : OUT STD_LOGIC_VECTOR (0 downto 0);
-    y_dst_TUSER : OUT STD_LOGIC_VECTOR (0 downto 0);
-    y_dst_TLAST : OUT STD_LOGIC_VECTOR (0 downto 0);
-    y_dst_TID : OUT STD_LOGIC_VECTOR (0 downto 0);
-    y_dst_TDEST : OUT STD_LOGIC_VECTOR (0 downto 0);
-    uv_dst_TDATA : OUT STD_LOGIC_VECTOR (7 downto 0);
-    uv_dst_TVALID : OUT STD_LOGIC;
-    uv_dst_TREADY : IN STD_LOGIC;
-    uv_dst_TKEEP : OUT STD_LOGIC_VECTOR (0 downto 0);
-    uv_dst_TSTRB : OUT STD_LOGIC_VECTOR (0 downto 0);
-    uv_dst_TUSER : OUT STD_LOGIC_VECTOR (0 downto 0);
-    uv_dst_TLAST : OUT STD_LOGIC_VECTOR (0 downto 0);
-    uv_dst_TID : OUT STD_LOGIC_VECTOR (0 downto 0);
-    uv_dst_TDEST : OUT STD_LOGIC_VECTOR (0 downto 0);
     s_axi_control_AWVALID : IN STD_LOGIC;
     s_axi_control_AWREADY : OUT STD_LOGIC;
     s_axi_control_AWADDR : IN STD_LOGIC_VECTOR (C_S_AXI_CONTROL_ADDR_WIDTH-1 downto 0);
@@ -59,7 +30,36 @@ port (
     s_axi_control_BVALID : OUT STD_LOGIC;
     s_axi_control_BREADY : IN STD_LOGIC;
     s_axi_control_BRESP : OUT STD_LOGIC_VECTOR (1 downto 0);
-    interrupt : OUT STD_LOGIC );
+    ap_clk : IN STD_LOGIC;
+    ap_rst_n : IN STD_LOGIC;
+    interrupt : OUT STD_LOGIC;
+    src_TDATA : IN STD_LOGIC_VECTOR (23 downto 0);
+    src_TKEEP : IN STD_LOGIC_VECTOR (2 downto 0);
+    src_TSTRB : IN STD_LOGIC_VECTOR (2 downto 0);
+    src_TUSER : IN STD_LOGIC_VECTOR (0 downto 0);
+    src_TLAST : IN STD_LOGIC_VECTOR (0 downto 0);
+    src_TID : IN STD_LOGIC_VECTOR (0 downto 0);
+    src_TDEST : IN STD_LOGIC_VECTOR (0 downto 0);
+    y_dst_TDATA : OUT STD_LOGIC_VECTOR (7 downto 0);
+    y_dst_TKEEP : OUT STD_LOGIC_VECTOR (0 downto 0);
+    y_dst_TSTRB : OUT STD_LOGIC_VECTOR (0 downto 0);
+    y_dst_TUSER : OUT STD_LOGIC_VECTOR (0 downto 0);
+    y_dst_TLAST : OUT STD_LOGIC_VECTOR (0 downto 0);
+    y_dst_TID : OUT STD_LOGIC_VECTOR (0 downto 0);
+    y_dst_TDEST : OUT STD_LOGIC_VECTOR (0 downto 0);
+    uv_dst_TDATA : OUT STD_LOGIC_VECTOR (7 downto 0);
+    uv_dst_TKEEP : OUT STD_LOGIC_VECTOR (0 downto 0);
+    uv_dst_TSTRB : OUT STD_LOGIC_VECTOR (0 downto 0);
+    uv_dst_TUSER : OUT STD_LOGIC_VECTOR (0 downto 0);
+    uv_dst_TLAST : OUT STD_LOGIC_VECTOR (0 downto 0);
+    uv_dst_TID : OUT STD_LOGIC_VECTOR (0 downto 0);
+    uv_dst_TDEST : OUT STD_LOGIC_VECTOR (0 downto 0);
+    src_TVALID : IN STD_LOGIC;
+    src_TREADY : OUT STD_LOGIC;
+    y_dst_TVALID : OUT STD_LOGIC;
+    y_dst_TREADY : IN STD_LOGIC;
+    uv_dst_TVALID : OUT STD_LOGIC;
+    uv_dst_TREADY : IN STD_LOGIC );
 end;
 
 
@@ -68,249 +68,150 @@ architecture behav of video_preprocess is
     attribute DowngradeIPIdentifiedWarnings of behav : architecture is "yes";
     attribute CORE_GENERATION_INFO : STRING;
     attribute CORE_GENERATION_INFO of behav : architecture is
-    "video_preprocess_video_preprocess,hls_ip_2025_2_1,{HLS_INPUT_TYPE=cxx,HLS_INPUT_FLOAT=0,HLS_INPUT_FIXED=0,HLS_INPUT_PART=xc7z020-clg400-1,HLS_INPUT_CLOCK=10.000000,HLS_INPUT_ARCH=others,HLS_SYN_CLOCK=6.692500,HLS_SYN_LAT=464762,HLS_SYN_TPT=none,HLS_SYN_MEM=3,HLS_SYN_DSP=0,HLS_SYN_FF=765,HLS_SYN_LUT=1365,HLS_VERSION=2025_2_1}";
+    "video_preprocess_video_preprocess,hls_ip_2025_2_1,{HLS_INPUT_TYPE=cxx,HLS_INPUT_FLOAT=0,HLS_INPUT_FIXED=0,HLS_INPUT_PART=xc7z020-clg400-1,HLS_INPUT_CLOCK=10.000000,HLS_INPUT_ARCH=dataflow,HLS_SYN_CLOCK=6.805800,HLS_SYN_LAT=464402,HLS_SYN_TPT=464402,HLS_SYN_MEM=24,HLS_SYN_DSP=0,HLS_SYN_FF=1631,HLS_SYN_LUT=1916,HLS_VERSION=2025_2_1}";
+    constant C_S_AXI_DATA_WIDTH : INTEGER := 32;
     constant ap_const_logic_1 : STD_LOGIC := '1';
     constant ap_const_logic_0 : STD_LOGIC := '0';
-    constant ap_ST_fsm_state1 : STD_LOGIC_VECTOR (5 downto 0) := "000001";
-    constant ap_ST_fsm_state2 : STD_LOGIC_VECTOR (5 downto 0) := "000010";
-    constant ap_ST_fsm_state3 : STD_LOGIC_VECTOR (5 downto 0) := "000100";
-    constant ap_ST_fsm_state4 : STD_LOGIC_VECTOR (5 downto 0) := "001000";
-    constant ap_ST_fsm_state5 : STD_LOGIC_VECTOR (5 downto 0) := "010000";
-    constant ap_ST_fsm_state6 : STD_LOGIC_VECTOR (5 downto 0) := "100000";
-    constant ap_const_lv32_0 : STD_LOGIC_VECTOR (31 downto 0) := "00000000000000000000000000000000";
     constant ap_const_boolean_1 : BOOLEAN := true;
-    constant ap_const_lv32_1 : STD_LOGIC_VECTOR (31 downto 0) := "00000000000000000000000000000001";
-    constant ap_const_lv32_2 : STD_LOGIC_VECTOR (31 downto 0) := "00000000000000000000000000000010";
-    constant C_S_AXI_DATA_WIDTH : INTEGER := 32;
-    constant ap_const_lv1_0 : STD_LOGIC_VECTOR (0 downto 0) := "0";
-    constant ap_const_lv32_4 : STD_LOGIC_VECTOR (31 downto 0) := "00000000000000000000000000000100";
-    constant ap_const_lv32_3 : STD_LOGIC_VECTOR (31 downto 0) := "00000000000000000000000000000011";
-    constant ap_const_lv8_0 : STD_LOGIC_VECTOR (7 downto 0) := "00000000";
-    constant ap_const_lv10_0 : STD_LOGIC_VECTOR (9 downto 0) := "0000000000";
-    constant ap_const_lv16_2D0 : STD_LOGIC_VECTOR (15 downto 0) := "0000001011010000";
-    constant ap_const_lv10_2D0 : STD_LOGIC_VECTOR (9 downto 0) := "1011010000";
-    constant ap_const_lv16_500 : STD_LOGIC_VECTOR (15 downto 0) := "0000010100000000";
-    constant ap_const_lv11_500 : STD_LOGIC_VECTOR (10 downto 0) := "10100000000";
-    constant ap_const_lv32_A : STD_LOGIC_VECTOR (31 downto 0) := "00000000000000000000000000001010";
-    constant ap_const_lv12_FFF : STD_LOGIC_VECTOR (11 downto 0) := "111111111111";
-    constant ap_const_lv10_1 : STD_LOGIC_VECTOR (9 downto 0) := "0000000001";
-    constant ap_const_lv32_5 : STD_LOGIC_VECTOR (31 downto 0) := "00000000000000000000000000000101";
-    constant ap_const_boolean_0 : BOOLEAN := false;
-    constant ap_const_lv1_1 : STD_LOGIC_VECTOR (0 downto 0) := "1";
 
     signal ap_rst_n_inv : STD_LOGIC;
-    signal ap_start : STD_LOGIC;
-    signal ap_done : STD_LOGIC;
-    signal ap_idle : STD_LOGIC;
-    signal ap_CS_fsm : STD_LOGIC_VECTOR (5 downto 0) := "000001";
-    attribute fsm_encoding : string;
-    attribute fsm_encoding of ap_CS_fsm : signal is "none";
-    signal ap_CS_fsm_state1 : STD_LOGIC;
-    attribute fsm_encoding of ap_CS_fsm_state1 : signal is "none";
-    signal ap_ready : STD_LOGIC;
     signal rows : STD_LOGIC_VECTOR (15 downto 0);
     signal cols : STD_LOGIC_VECTOR (15 downto 0);
     signal input_is_bgr : STD_LOGIC_VECTOR (7 downto 0);
-    signal proc_rows_fu_250_p3 : STD_LOGIC_VECTOR (9 downto 0);
-    signal proc_rows_reg_406 : STD_LOGIC_VECTOR (9 downto 0);
-    signal proc_cols_fu_268_p3 : STD_LOGIC_VECTOR (10 downto 0);
-    signal proc_cols_reg_411 : STD_LOGIC_VECTOR (10 downto 0);
-    signal trunc_ln96_fu_302_p1 : STD_LOGIC_VECTOR (0 downto 0);
-    signal trunc_ln96_reg_416 : STD_LOGIC_VECTOR (0 downto 0);
-    signal add_ln104_fu_306_p2 : STD_LOGIC_VECTOR (11 downto 0);
-    signal add_ln104_reg_421 : STD_LOGIC_VECTOR (11 downto 0);
-    signal add_ln144_fu_312_p2 : STD_LOGIC_VECTOR (11 downto 0);
-    signal add_ln144_reg_426 : STD_LOGIC_VECTOR (11 downto 0);
-    signal r_3_fu_346_p2 : STD_LOGIC_VECTOR (9 downto 0);
-    signal r_3_reg_437 : STD_LOGIC_VECTOR (9 downto 0);
-    signal ap_CS_fsm_state2 : STD_LOGIC;
-    attribute fsm_encoding of ap_CS_fsm_state2 : signal is "none";
-    signal icmp_ln80_fu_352_p2 : STD_LOGIC_VECTOR (0 downto 0);
-    signal icmp_ln80_reg_442 : STD_LOGIC_VECTOR (0 downto 0);
-    signal trunc_ln78_fu_358_p1 : STD_LOGIC_VECTOR (0 downto 0);
-    signal trunc_ln78_reg_448 : STD_LOGIC_VECTOR (0 downto 0);
-    signal ap_CS_fsm_state3 : STD_LOGIC;
-    attribute fsm_encoding of ap_CS_fsm_state3 : signal is "none";
-    signal uv_user_sent_1_fu_362_p2 : STD_LOGIC_VECTOR (0 downto 0);
-    signal uv_user_sent_1_reg_453 : STD_LOGIC_VECTOR (0 downto 0);
-    signal grp_video_preprocess_Pipeline_col_loop_fu_182_ap_start : STD_LOGIC;
-    signal grp_video_preprocess_Pipeline_col_loop_fu_182_ap_done : STD_LOGIC;
-    signal grp_video_preprocess_Pipeline_col_loop_fu_182_ap_idle : STD_LOGIC;
-    signal grp_video_preprocess_Pipeline_col_loop_fu_182_ap_ready : STD_LOGIC;
-    signal grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TREADY : STD_LOGIC;
-    signal grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TREADY : STD_LOGIC;
-    signal grp_video_preprocess_Pipeline_col_loop_fu_182_src_TREADY : STD_LOGIC;
-    signal grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TDATA : STD_LOGIC_VECTOR (7 downto 0);
-    signal grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TVALID : STD_LOGIC;
-    signal grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TKEEP : STD_LOGIC_VECTOR (0 downto 0);
-    signal grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TSTRB : STD_LOGIC_VECTOR (0 downto 0);
-    signal grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TUSER : STD_LOGIC_VECTOR (0 downto 0);
-    signal grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TLAST : STD_LOGIC_VECTOR (0 downto 0);
-    signal grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TID : STD_LOGIC_VECTOR (0 downto 0);
-    signal grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TDEST : STD_LOGIC_VECTOR (0 downto 0);
-    signal grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TDATA : STD_LOGIC_VECTOR (7 downto 0);
-    signal grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TVALID : STD_LOGIC;
-    signal grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TKEEP : STD_LOGIC_VECTOR (0 downto 0);
-    signal grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TSTRB : STD_LOGIC_VECTOR (0 downto 0);
-    signal grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TUSER : STD_LOGIC_VECTOR (0 downto 0);
-    signal grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TLAST : STD_LOGIC_VECTOR (0 downto 0);
-    signal grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TID : STD_LOGIC_VECTOR (0 downto 0);
-    signal grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TDEST : STD_LOGIC_VECTOR (0 downto 0);
-    signal grp_video_preprocess_Pipeline_col_loop_fu_182_uv_user_sent_2_out : STD_LOGIC_VECTOR (0 downto 0);
-    signal grp_video_preprocess_Pipeline_col_loop_fu_182_uv_user_sent_2_out_ap_vld : STD_LOGIC;
-    signal grp_video_preprocess_Pipeline_col_loop_fu_182_left_b_3_out_o : STD_LOGIC_VECTOR (7 downto 0);
-    signal grp_video_preprocess_Pipeline_col_loop_fu_182_left_b_3_out_o_ap_vld : STD_LOGIC;
-    signal grp_video_preprocess_Pipeline_col_loop_fu_182_left_g_3_out_o : STD_LOGIC_VECTOR (7 downto 0);
-    signal grp_video_preprocess_Pipeline_col_loop_fu_182_left_g_3_out_o_ap_vld : STD_LOGIC;
-    signal grp_video_preprocess_Pipeline_col_loop_fu_182_left_r_3_out_o : STD_LOGIC_VECTOR (7 downto 0);
-    signal grp_video_preprocess_Pipeline_col_loop_fu_182_left_r_3_out_o_ap_vld : STD_LOGIC;
-    signal uv_user_sent_reg_170 : STD_LOGIC_VECTOR (0 downto 0);
-    signal ap_CS_fsm_state5 : STD_LOGIC;
-    attribute fsm_encoding of ap_CS_fsm_state5 : signal is "none";
-    signal grp_video_preprocess_Pipeline_col_loop_fu_182_ap_start_reg : STD_LOGIC := '0';
-    signal ap_CS_fsm_state4 : STD_LOGIC;
-    attribute fsm_encoding of ap_CS_fsm_state4 : signal is "none";
-    signal y_dst_TDATA_reg : STD_LOGIC_VECTOR (7 downto 0);
-    signal y_dst_TKEEP_reg : STD_LOGIC_VECTOR (0 downto 0);
-    signal y_dst_TSTRB_reg : STD_LOGIC_VECTOR (0 downto 0);
-    signal y_dst_TUSER_reg : STD_LOGIC_VECTOR (0 downto 0);
-    signal y_dst_TLAST_reg : STD_LOGIC_VECTOR (0 downto 0);
-    signal y_dst_TID_reg : STD_LOGIC_VECTOR (0 downto 0);
-    signal y_dst_TDEST_reg : STD_LOGIC_VECTOR (0 downto 0);
-    signal uv_dst_TDATA_reg : STD_LOGIC_VECTOR (7 downto 0);
-    signal uv_dst_TKEEP_reg : STD_LOGIC_VECTOR (0 downto 0);
-    signal uv_dst_TSTRB_reg : STD_LOGIC_VECTOR (0 downto 0);
-    signal uv_dst_TUSER_reg : STD_LOGIC_VECTOR (0 downto 0);
-    signal uv_dst_TLAST_reg : STD_LOGIC_VECTOR (0 downto 0);
-    signal uv_dst_TID_reg : STD_LOGIC_VECTOR (0 downto 0);
-    signal uv_dst_TDEST_reg : STD_LOGIC_VECTOR (0 downto 0);
-    signal left_b_fu_140 : STD_LOGIC_VECTOR (7 downto 0) := "00000000";
-    signal left_g_fu_136 : STD_LOGIC_VECTOR (7 downto 0) := "00000000";
-    signal left_r_fu_132 : STD_LOGIC_VECTOR (7 downto 0) := "00000000";
-    signal r_fu_144 : STD_LOGIC_VECTOR (9 downto 0) := "0000000000";
-    signal icmp_ln60_fu_240_p2 : STD_LOGIC_VECTOR (0 downto 0);
-    signal trunc_ln58_fu_246_p1 : STD_LOGIC_VECTOR (9 downto 0);
-    signal icmp_ln66_fu_258_p2 : STD_LOGIC_VECTOR (0 downto 0);
-    signal trunc_ln58_1_fu_264_p1 : STD_LOGIC_VECTOR (10 downto 0);
-    signal tmp_1_fu_280_p4 : STD_LOGIC_VECTOR (9 downto 0);
-    signal even_cols_fu_290_p3 : STD_LOGIC_VECTOR (10 downto 0);
-    signal zext_ln58_fu_276_p1 : STD_LOGIC_VECTOR (11 downto 0);
-    signal zext_ln71_fu_298_p1 : STD_LOGIC_VECTOR (11 downto 0);
-    signal icmp_ln78_fu_341_p2 : STD_LOGIC_VECTOR (0 downto 0);
-    signal ap_CS_fsm_state6 : STD_LOGIC;
-    attribute fsm_encoding of ap_CS_fsm_state6 : signal is "none";
-    signal regslice_both_y_dst_V_data_V_U_apdone_blk : STD_LOGIC;
-    signal regslice_both_uv_dst_V_data_V_U_apdone_blk : STD_LOGIC;
-    signal ap_block_state6 : BOOLEAN;
-    signal ap_NS_fsm : STD_LOGIC_VECTOR (5 downto 0);
-    signal ap_ST_fsm_state1_blk : STD_LOGIC;
-    signal ap_ST_fsm_state2_blk : STD_LOGIC;
-    signal ap_ST_fsm_state3_blk : STD_LOGIC;
-    signal ap_ST_fsm_state4_blk : STD_LOGIC;
-    signal ap_ST_fsm_state5_blk : STD_LOGIC;
-    signal ap_ST_fsm_state6_blk : STD_LOGIC;
-    signal regslice_both_src_V_data_V_U_apdone_blk : STD_LOGIC;
-    signal src_TDATA_int_regslice : STD_LOGIC_VECTOR (23 downto 0);
-    signal src_TVALID_int_regslice : STD_LOGIC;
-    signal src_TREADY_int_regslice : STD_LOGIC;
-    signal regslice_both_src_V_data_V_U_ack_in : STD_LOGIC;
-    signal regslice_both_src_V_keep_V_U_apdone_blk : STD_LOGIC;
-    signal src_TKEEP_int_regslice : STD_LOGIC_VECTOR (2 downto 0);
-    signal regslice_both_src_V_keep_V_U_vld_out : STD_LOGIC;
-    signal regslice_both_src_V_keep_V_U_ack_in : STD_LOGIC;
-    signal regslice_both_src_V_strb_V_U_apdone_blk : STD_LOGIC;
-    signal src_TSTRB_int_regslice : STD_LOGIC_VECTOR (2 downto 0);
-    signal regslice_both_src_V_strb_V_U_vld_out : STD_LOGIC;
-    signal regslice_both_src_V_strb_V_U_ack_in : STD_LOGIC;
-    signal regslice_both_src_V_user_V_U_apdone_blk : STD_LOGIC;
-    signal src_TUSER_int_regslice : STD_LOGIC_VECTOR (0 downto 0);
-    signal regslice_both_src_V_user_V_U_vld_out : STD_LOGIC;
-    signal regslice_both_src_V_user_V_U_ack_in : STD_LOGIC;
-    signal regslice_both_src_V_last_V_U_apdone_blk : STD_LOGIC;
-    signal src_TLAST_int_regslice : STD_LOGIC_VECTOR (0 downto 0);
-    signal regslice_both_src_V_last_V_U_vld_out : STD_LOGIC;
-    signal regslice_both_src_V_last_V_U_ack_in : STD_LOGIC;
-    signal regslice_both_src_V_id_V_U_apdone_blk : STD_LOGIC;
-    signal src_TID_int_regslice : STD_LOGIC_VECTOR (0 downto 0);
-    signal regslice_both_src_V_id_V_U_vld_out : STD_LOGIC;
-    signal regslice_both_src_V_id_V_U_ack_in : STD_LOGIC;
-    signal regslice_both_src_V_dest_V_U_apdone_blk : STD_LOGIC;
-    signal src_TDEST_int_regslice : STD_LOGIC_VECTOR (0 downto 0);
-    signal regslice_both_src_V_dest_V_U_vld_out : STD_LOGIC;
-    signal regslice_both_src_V_dest_V_U_ack_in : STD_LOGIC;
-    signal y_dst_TDATA_int_regslice : STD_LOGIC_VECTOR (7 downto 0);
-    signal y_dst_TVALID_int_regslice : STD_LOGIC;
-    signal y_dst_TREADY_int_regslice : STD_LOGIC;
-    signal regslice_both_y_dst_V_data_V_U_vld_out : STD_LOGIC;
-    signal regslice_both_y_dst_V_keep_V_U_apdone_blk : STD_LOGIC;
-    signal y_dst_TKEEP_int_regslice : STD_LOGIC_VECTOR (0 downto 0);
-    signal regslice_both_y_dst_V_keep_V_U_ack_in_dummy : STD_LOGIC;
-    signal regslice_both_y_dst_V_keep_V_U_vld_out : STD_LOGIC;
-    signal regslice_both_y_dst_V_strb_V_U_apdone_blk : STD_LOGIC;
-    signal y_dst_TSTRB_int_regslice : STD_LOGIC_VECTOR (0 downto 0);
-    signal regslice_both_y_dst_V_strb_V_U_ack_in_dummy : STD_LOGIC;
-    signal regslice_both_y_dst_V_strb_V_U_vld_out : STD_LOGIC;
-    signal regslice_both_y_dst_V_user_V_U_apdone_blk : STD_LOGIC;
-    signal y_dst_TUSER_int_regslice : STD_LOGIC_VECTOR (0 downto 0);
-    signal regslice_both_y_dst_V_user_V_U_ack_in_dummy : STD_LOGIC;
-    signal regslice_both_y_dst_V_user_V_U_vld_out : STD_LOGIC;
-    signal regslice_both_y_dst_V_last_V_U_apdone_blk : STD_LOGIC;
-    signal y_dst_TLAST_int_regslice : STD_LOGIC_VECTOR (0 downto 0);
-    signal regslice_both_y_dst_V_last_V_U_ack_in_dummy : STD_LOGIC;
-    signal regslice_both_y_dst_V_last_V_U_vld_out : STD_LOGIC;
-    signal regslice_both_y_dst_V_id_V_U_apdone_blk : STD_LOGIC;
-    signal y_dst_TID_int_regslice : STD_LOGIC_VECTOR (0 downto 0);
-    signal regslice_both_y_dst_V_id_V_U_ack_in_dummy : STD_LOGIC;
-    signal regslice_both_y_dst_V_id_V_U_vld_out : STD_LOGIC;
-    signal regslice_both_y_dst_V_dest_V_U_apdone_blk : STD_LOGIC;
-    signal y_dst_TDEST_int_regslice : STD_LOGIC_VECTOR (0 downto 0);
-    signal regslice_both_y_dst_V_dest_V_U_ack_in_dummy : STD_LOGIC;
-    signal regslice_both_y_dst_V_dest_V_U_vld_out : STD_LOGIC;
-    signal uv_dst_TDATA_int_regslice : STD_LOGIC_VECTOR (7 downto 0);
-    signal uv_dst_TVALID_int_regslice : STD_LOGIC;
-    signal uv_dst_TREADY_int_regslice : STD_LOGIC;
-    signal regslice_both_uv_dst_V_data_V_U_vld_out : STD_LOGIC;
-    signal regslice_both_uv_dst_V_keep_V_U_apdone_blk : STD_LOGIC;
-    signal uv_dst_TKEEP_int_regslice : STD_LOGIC_VECTOR (0 downto 0);
-    signal regslice_both_uv_dst_V_keep_V_U_ack_in_dummy : STD_LOGIC;
-    signal regslice_both_uv_dst_V_keep_V_U_vld_out : STD_LOGIC;
-    signal regslice_both_uv_dst_V_strb_V_U_apdone_blk : STD_LOGIC;
-    signal uv_dst_TSTRB_int_regslice : STD_LOGIC_VECTOR (0 downto 0);
-    signal regslice_both_uv_dst_V_strb_V_U_ack_in_dummy : STD_LOGIC;
-    signal regslice_both_uv_dst_V_strb_V_U_vld_out : STD_LOGIC;
-    signal regslice_both_uv_dst_V_user_V_U_apdone_blk : STD_LOGIC;
-    signal uv_dst_TUSER_int_regslice : STD_LOGIC_VECTOR (0 downto 0);
-    signal regslice_both_uv_dst_V_user_V_U_ack_in_dummy : STD_LOGIC;
-    signal regslice_both_uv_dst_V_user_V_U_vld_out : STD_LOGIC;
-    signal regslice_both_uv_dst_V_last_V_U_apdone_blk : STD_LOGIC;
-    signal uv_dst_TLAST_int_regslice : STD_LOGIC_VECTOR (0 downto 0);
-    signal regslice_both_uv_dst_V_last_V_U_ack_in_dummy : STD_LOGIC;
-    signal regslice_both_uv_dst_V_last_V_U_vld_out : STD_LOGIC;
-    signal regslice_both_uv_dst_V_id_V_U_apdone_blk : STD_LOGIC;
-    signal uv_dst_TID_int_regslice : STD_LOGIC_VECTOR (0 downto 0);
-    signal regslice_both_uv_dst_V_id_V_U_ack_in_dummy : STD_LOGIC;
-    signal regslice_both_uv_dst_V_id_V_U_vld_out : STD_LOGIC;
-    signal regslice_both_uv_dst_V_dest_V_U_apdone_blk : STD_LOGIC;
-    signal uv_dst_TDEST_int_regslice : STD_LOGIC_VECTOR (0 downto 0);
-    signal regslice_both_uv_dst_V_dest_V_U_ack_in_dummy : STD_LOGIC;
-    signal regslice_both_uv_dst_V_dest_V_U_vld_out : STD_LOGIC;
+    signal ap_start : STD_LOGIC;
+    signal ap_ready : STD_LOGIC;
+    signal ap_done : STD_LOGIC;
+    signal ap_idle : STD_LOGIC;
+    signal entry_proc_U0_ap_start : STD_LOGIC;
+    signal entry_proc_U0_ap_done : STD_LOGIC;
+    signal entry_proc_U0_ap_continue : STD_LOGIC;
+    signal entry_proc_U0_ap_idle : STD_LOGIC;
+    signal entry_proc_U0_ap_ready : STD_LOGIC;
+    signal entry_proc_U0_input_is_bgr_c_din : STD_LOGIC_VECTOR (7 downto 0);
+    signal entry_proc_U0_input_is_bgr_c_write : STD_LOGIC;
+    signal Block_entry_proc_U0_ap_start : STD_LOGIC;
+    signal Block_entry_proc_U0_ap_done : STD_LOGIC;
+    signal Block_entry_proc_U0_ap_continue : STD_LOGIC;
+    signal Block_entry_proc_U0_ap_idle : STD_LOGIC;
+    signal Block_entry_proc_U0_ap_ready : STD_LOGIC;
+    signal Block_entry_proc_U0_ap_return_0 : STD_LOGIC_VECTOR (9 downto 0);
+    signal Block_entry_proc_U0_ap_return_1 : STD_LOGIC_VECTOR (10 downto 0);
+    signal Block_entry_proc_U0_ap_return_2 : STD_LOGIC_VECTOR (11 downto 0);
+    signal Block_entry_proc_U0_ap_return_3 : STD_LOGIC_VECTOR (11 downto 0);
+    signal ap_channel_done_sub126_loc_channel : STD_LOGIC;
+    signal sub126_loc_channel_full_n : STD_LOGIC;
+    signal ap_sync_reg_channel_write_sub126_loc_channel : STD_LOGIC := '0';
+    signal ap_sync_channel_write_sub126_loc_channel : STD_LOGIC;
+    signal Loop_row_loop_proc_U0_ap_start : STD_LOGIC;
+    signal Loop_row_loop_proc_U0_ap_done : STD_LOGIC;
+    signal Loop_row_loop_proc_U0_ap_continue : STD_LOGIC;
+    signal Loop_row_loop_proc_U0_ap_idle : STD_LOGIC;
+    signal Loop_row_loop_proc_U0_ap_ready : STD_LOGIC;
+    signal Loop_row_loop_proc_U0_input_is_bgr_read : STD_LOGIC;
+    signal Loop_row_loop_proc_U0_src_TREADY : STD_LOGIC;
+    signal Loop_row_loop_proc_U0_y_dst_TDATA : STD_LOGIC_VECTOR (7 downto 0);
+    signal Loop_row_loop_proc_U0_y_dst_TVALID : STD_LOGIC;
+    signal Loop_row_loop_proc_U0_y_dst_TKEEP : STD_LOGIC_VECTOR (0 downto 0);
+    signal Loop_row_loop_proc_U0_y_dst_TSTRB : STD_LOGIC_VECTOR (0 downto 0);
+    signal Loop_row_loop_proc_U0_y_dst_TUSER : STD_LOGIC_VECTOR (0 downto 0);
+    signal Loop_row_loop_proc_U0_y_dst_TLAST : STD_LOGIC_VECTOR (0 downto 0);
+    signal Loop_row_loop_proc_U0_y_dst_TID : STD_LOGIC_VECTOR (0 downto 0);
+    signal Loop_row_loop_proc_U0_y_dst_TDEST : STD_LOGIC_VECTOR (0 downto 0);
+    signal Loop_row_loop_proc_U0_uv_dst_TDATA : STD_LOGIC_VECTOR (7 downto 0);
+    signal Loop_row_loop_proc_U0_uv_dst_TVALID : STD_LOGIC;
+    signal Loop_row_loop_proc_U0_uv_dst_TKEEP : STD_LOGIC_VECTOR (0 downto 0);
+    signal Loop_row_loop_proc_U0_uv_dst_TSTRB : STD_LOGIC_VECTOR (0 downto 0);
+    signal Loop_row_loop_proc_U0_uv_dst_TUSER : STD_LOGIC_VECTOR (0 downto 0);
+    signal Loop_row_loop_proc_U0_uv_dst_TLAST : STD_LOGIC_VECTOR (0 downto 0);
+    signal Loop_row_loop_proc_U0_uv_dst_TID : STD_LOGIC_VECTOR (0 downto 0);
+    signal Loop_row_loop_proc_U0_uv_dst_TDEST : STD_LOGIC_VECTOR (0 downto 0);
+    signal input_is_bgr_c_full_n : STD_LOGIC;
+    signal input_is_bgr_c_dout : STD_LOGIC_VECTOR (7 downto 0);
+    signal input_is_bgr_c_empty_n : STD_LOGIC;
+    signal input_is_bgr_c_num_data_valid : STD_LOGIC_VECTOR (2 downto 0);
+    signal input_is_bgr_c_fifo_cap : STD_LOGIC_VECTOR (2 downto 0);
+    signal proc_rows_0_loc_channel_full_n : STD_LOGIC;
+    signal proc_rows_0_loc_channel_dout : STD_LOGIC_VECTOR (9 downto 0);
+    signal proc_rows_0_loc_channel_empty_n : STD_LOGIC;
+    signal proc_rows_0_loc_channel_num_data_valid : STD_LOGIC_VECTOR (2 downto 0);
+    signal proc_rows_0_loc_channel_fifo_cap : STD_LOGIC_VECTOR (2 downto 0);
+    signal proc_cols_0_loc_channel_full_n : STD_LOGIC;
+    signal proc_cols_0_loc_channel_dout : STD_LOGIC_VECTOR (10 downto 0);
+    signal proc_cols_0_loc_channel_empty_n : STD_LOGIC;
+    signal proc_cols_0_loc_channel_num_data_valid : STD_LOGIC_VECTOR (2 downto 0);
+    signal proc_cols_0_loc_channel_fifo_cap : STD_LOGIC_VECTOR (2 downto 0);
+    signal sub_loc_channel_full_n : STD_LOGIC;
+    signal sub_loc_channel_dout : STD_LOGIC_VECTOR (11 downto 0);
+    signal sub_loc_channel_empty_n : STD_LOGIC;
+    signal sub_loc_channel_num_data_valid : STD_LOGIC_VECTOR (2 downto 0);
+    signal sub_loc_channel_fifo_cap : STD_LOGIC_VECTOR (2 downto 0);
+    signal sub126_loc_channel_dout : STD_LOGIC_VECTOR (11 downto 0);
+    signal sub126_loc_channel_empty_n : STD_LOGIC;
+    signal sub126_loc_channel_num_data_valid : STD_LOGIC_VECTOR (2 downto 0);
+    signal sub126_loc_channel_fifo_cap : STD_LOGIC_VECTOR (2 downto 0);
+    signal ap_sync_ready : STD_LOGIC;
+    signal ap_sync_reg_entry_proc_U0_ap_ready : STD_LOGIC := '0';
+    signal ap_sync_entry_proc_U0_ap_ready : STD_LOGIC;
+    signal ap_sync_reg_Block_entry_proc_U0_ap_ready : STD_LOGIC := '0';
+    signal ap_sync_Block_entry_proc_U0_ap_ready : STD_LOGIC;
     signal ap_ce_reg : STD_LOGIC;
 
-    component video_preprocess_video_preprocess_Pipeline_col_loop IS
+    component video_preprocess_entry_proc IS
     port (
         ap_clk : IN STD_LOGIC;
         ap_rst : IN STD_LOGIC;
         ap_start : IN STD_LOGIC;
         ap_done : OUT STD_LOGIC;
+        ap_continue : IN STD_LOGIC;
         ap_idle : OUT STD_LOGIC;
         ap_ready : OUT STD_LOGIC;
-        y_dst_TREADY : IN STD_LOGIC;
-        uv_dst_TREADY : IN STD_LOGIC;
-        src_TVALID : IN STD_LOGIC;
-        uv_user_sent_1 : IN STD_LOGIC_VECTOR (0 downto 0);
-        r : IN STD_LOGIC_VECTOR (9 downto 0);
-        proc_cols : IN STD_LOGIC_VECTOR (10 downto 0);
+        input_is_bgr : IN STD_LOGIC_VECTOR (7 downto 0);
+        input_is_bgr_c_din : OUT STD_LOGIC_VECTOR (7 downto 0);
+        input_is_bgr_c_full_n : IN STD_LOGIC;
+        input_is_bgr_c_write : OUT STD_LOGIC;
+        input_is_bgr_c_num_data_valid : IN STD_LOGIC_VECTOR (2 downto 0);
+        input_is_bgr_c_fifo_cap : IN STD_LOGIC_VECTOR (2 downto 0) );
+    end component;
+
+
+    component video_preprocess_Block_entry_proc IS
+    port (
+        ap_clk : IN STD_LOGIC;
+        ap_rst : IN STD_LOGIC;
+        ap_start : IN STD_LOGIC;
+        ap_done : OUT STD_LOGIC;
+        ap_continue : IN STD_LOGIC;
+        ap_idle : OUT STD_LOGIC;
+        ap_ready : OUT STD_LOGIC;
+        rows : IN STD_LOGIC_VECTOR (15 downto 0);
+        cols : IN STD_LOGIC_VECTOR (15 downto 0);
+        ap_return_0 : OUT STD_LOGIC_VECTOR (9 downto 0);
+        ap_return_1 : OUT STD_LOGIC_VECTOR (10 downto 0);
+        ap_return_2 : OUT STD_LOGIC_VECTOR (11 downto 0);
+        ap_return_3 : OUT STD_LOGIC_VECTOR (11 downto 0) );
+    end component;
+
+
+    component video_preprocess_Loop_row_loop_proc IS
+    port (
+        ap_clk : IN STD_LOGIC;
+        ap_rst : IN STD_LOGIC;
+        ap_start : IN STD_LOGIC;
+        ap_done : OUT STD_LOGIC;
+        ap_continue : IN STD_LOGIC;
+        ap_idle : OUT STD_LOGIC;
+        ap_ready : OUT STD_LOGIC;
+        p_read : IN STD_LOGIC_VECTOR (9 downto 0);
+        p_read1 : IN STD_LOGIC_VECTOR (11 downto 0);
+        p_read2 : IN STD_LOGIC_VECTOR (11 downto 0);
+        p_read3 : IN STD_LOGIC_VECTOR (10 downto 0);
+        input_is_bgr_dout : IN STD_LOGIC_VECTOR (7 downto 0);
+        input_is_bgr_empty_n : IN STD_LOGIC;
+        input_is_bgr_read : OUT STD_LOGIC;
+        input_is_bgr_num_data_valid : IN STD_LOGIC_VECTOR (2 downto 0);
+        input_is_bgr_fifo_cap : IN STD_LOGIC_VECTOR (2 downto 0);
         src_TDATA : IN STD_LOGIC_VECTOR (23 downto 0);
+        src_TVALID : IN STD_LOGIC;
         src_TREADY : OUT STD_LOGIC;
         src_TKEEP : IN STD_LOGIC_VECTOR (2 downto 0);
         src_TSTRB : IN STD_LOGIC_VECTOR (2 downto 0);
@@ -318,38 +219,92 @@ architecture behav of video_preprocess is
         src_TLAST : IN STD_LOGIC_VECTOR (0 downto 0);
         src_TID : IN STD_LOGIC_VECTOR (0 downto 0);
         src_TDEST : IN STD_LOGIC_VECTOR (0 downto 0);
-        empty_14 : IN STD_LOGIC_VECTOR (0 downto 0);
-        add_ln104 : IN STD_LOGIC_VECTOR (11 downto 0);
         y_dst_TDATA : OUT STD_LOGIC_VECTOR (7 downto 0);
         y_dst_TVALID : OUT STD_LOGIC;
+        y_dst_TREADY : IN STD_LOGIC;
         y_dst_TKEEP : OUT STD_LOGIC_VECTOR (0 downto 0);
         y_dst_TSTRB : OUT STD_LOGIC_VECTOR (0 downto 0);
         y_dst_TUSER : OUT STD_LOGIC_VECTOR (0 downto 0);
         y_dst_TLAST : OUT STD_LOGIC_VECTOR (0 downto 0);
         y_dst_TID : OUT STD_LOGIC_VECTOR (0 downto 0);
         y_dst_TDEST : OUT STD_LOGIC_VECTOR (0 downto 0);
-        empty : IN STD_LOGIC_VECTOR (0 downto 0);
-        icmp_ln110 : IN STD_LOGIC_VECTOR (0 downto 0);
         uv_dst_TDATA : OUT STD_LOGIC_VECTOR (7 downto 0);
         uv_dst_TVALID : OUT STD_LOGIC;
+        uv_dst_TREADY : IN STD_LOGIC;
         uv_dst_TKEEP : OUT STD_LOGIC_VECTOR (0 downto 0);
         uv_dst_TSTRB : OUT STD_LOGIC_VECTOR (0 downto 0);
         uv_dst_TUSER : OUT STD_LOGIC_VECTOR (0 downto 0);
         uv_dst_TLAST : OUT STD_LOGIC_VECTOR (0 downto 0);
         uv_dst_TID : OUT STD_LOGIC_VECTOR (0 downto 0);
-        uv_dst_TDEST : OUT STD_LOGIC_VECTOR (0 downto 0);
-        add_ln144 : IN STD_LOGIC_VECTOR (11 downto 0);
-        uv_user_sent_2_out : OUT STD_LOGIC_VECTOR (0 downto 0);
-        uv_user_sent_2_out_ap_vld : OUT STD_LOGIC;
-        left_b_3_out_i : IN STD_LOGIC_VECTOR (7 downto 0);
-        left_b_3_out_o : OUT STD_LOGIC_VECTOR (7 downto 0);
-        left_b_3_out_o_ap_vld : OUT STD_LOGIC;
-        left_g_3_out_i : IN STD_LOGIC_VECTOR (7 downto 0);
-        left_g_3_out_o : OUT STD_LOGIC_VECTOR (7 downto 0);
-        left_g_3_out_o_ap_vld : OUT STD_LOGIC;
-        left_r_3_out_i : IN STD_LOGIC_VECTOR (7 downto 0);
-        left_r_3_out_o : OUT STD_LOGIC_VECTOR (7 downto 0);
-        left_r_3_out_o_ap_vld : OUT STD_LOGIC );
+        uv_dst_TDEST : OUT STD_LOGIC_VECTOR (0 downto 0) );
+    end component;
+
+
+    component video_preprocess_fifo_w8_d3_S IS
+    port (
+        clk : IN STD_LOGIC;
+        reset : IN STD_LOGIC;
+        if_read_ce : IN STD_LOGIC;
+        if_write_ce : IN STD_LOGIC;
+        if_din : IN STD_LOGIC_VECTOR (7 downto 0);
+        if_full_n : OUT STD_LOGIC;
+        if_write : IN STD_LOGIC;
+        if_dout : OUT STD_LOGIC_VECTOR (7 downto 0);
+        if_empty_n : OUT STD_LOGIC;
+        if_read : IN STD_LOGIC;
+        if_num_data_valid : OUT STD_LOGIC_VECTOR (2 downto 0);
+        if_fifo_cap : OUT STD_LOGIC_VECTOR (2 downto 0) );
+    end component;
+
+
+    component video_preprocess_fifo_w10_d2_S IS
+    port (
+        clk : IN STD_LOGIC;
+        reset : IN STD_LOGIC;
+        if_read_ce : IN STD_LOGIC;
+        if_write_ce : IN STD_LOGIC;
+        if_din : IN STD_LOGIC_VECTOR (9 downto 0);
+        if_full_n : OUT STD_LOGIC;
+        if_write : IN STD_LOGIC;
+        if_dout : OUT STD_LOGIC_VECTOR (9 downto 0);
+        if_empty_n : OUT STD_LOGIC;
+        if_read : IN STD_LOGIC;
+        if_num_data_valid : OUT STD_LOGIC_VECTOR (2 downto 0);
+        if_fifo_cap : OUT STD_LOGIC_VECTOR (2 downto 0) );
+    end component;
+
+
+    component video_preprocess_fifo_w11_d2_S IS
+    port (
+        clk : IN STD_LOGIC;
+        reset : IN STD_LOGIC;
+        if_read_ce : IN STD_LOGIC;
+        if_write_ce : IN STD_LOGIC;
+        if_din : IN STD_LOGIC_VECTOR (10 downto 0);
+        if_full_n : OUT STD_LOGIC;
+        if_write : IN STD_LOGIC;
+        if_dout : OUT STD_LOGIC_VECTOR (10 downto 0);
+        if_empty_n : OUT STD_LOGIC;
+        if_read : IN STD_LOGIC;
+        if_num_data_valid : OUT STD_LOGIC_VECTOR (2 downto 0);
+        if_fifo_cap : OUT STD_LOGIC_VECTOR (2 downto 0) );
+    end component;
+
+
+    component video_preprocess_fifo_w12_d2_S IS
+    port (
+        clk : IN STD_LOGIC;
+        reset : IN STD_LOGIC;
+        if_read_ce : IN STD_LOGIC;
+        if_write_ce : IN STD_LOGIC;
+        if_din : IN STD_LOGIC_VECTOR (11 downto 0);
+        if_full_n : OUT STD_LOGIC;
+        if_write : IN STD_LOGIC;
+        if_dout : OUT STD_LOGIC_VECTOR (11 downto 0);
+        if_empty_n : OUT STD_LOGIC;
+        if_read : IN STD_LOGIC;
+        if_num_data_valid : OUT STD_LOGIC_VECTOR (2 downto 0);
+        if_fifo_cap : OUT STD_LOGIC_VECTOR (2 downto 0) );
     end component;
 
 
@@ -389,79 +344,8 @@ architecture behav of video_preprocess is
     end component;
 
 
-    component video_preprocess_regslice_both IS
-    generic (
-        DataWidth : INTEGER );
-    port (
-        ap_clk : IN STD_LOGIC;
-        ap_rst : IN STD_LOGIC;
-        data_in : IN STD_LOGIC_VECTOR (DataWidth-1 downto 0);
-        vld_in : IN STD_LOGIC;
-        ack_in : OUT STD_LOGIC;
-        data_out : OUT STD_LOGIC_VECTOR (DataWidth-1 downto 0);
-        vld_out : OUT STD_LOGIC;
-        ack_out : IN STD_LOGIC;
-        apdone_blk : OUT STD_LOGIC );
-    end component;
-
-
 
 begin
-    grp_video_preprocess_Pipeline_col_loop_fu_182 : component video_preprocess_video_preprocess_Pipeline_col_loop
-    port map (
-        ap_clk => ap_clk,
-        ap_rst => ap_rst_n_inv,
-        ap_start => grp_video_preprocess_Pipeline_col_loop_fu_182_ap_start,
-        ap_done => grp_video_preprocess_Pipeline_col_loop_fu_182_ap_done,
-        ap_idle => grp_video_preprocess_Pipeline_col_loop_fu_182_ap_idle,
-        ap_ready => grp_video_preprocess_Pipeline_col_loop_fu_182_ap_ready,
-        y_dst_TREADY => grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TREADY,
-        uv_dst_TREADY => grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TREADY,
-        src_TVALID => src_TVALID_int_regslice,
-        uv_user_sent_1 => uv_user_sent_1_reg_453,
-        r => r_fu_144,
-        proc_cols => proc_cols_reg_411,
-        src_TDATA => src_TDATA_int_regslice,
-        src_TREADY => grp_video_preprocess_Pipeline_col_loop_fu_182_src_TREADY,
-        src_TKEEP => src_TKEEP_int_regslice,
-        src_TSTRB => src_TSTRB_int_regslice,
-        src_TUSER => src_TUSER_int_regslice,
-        src_TLAST => src_TLAST_int_regslice,
-        src_TID => src_TID_int_regslice,
-        src_TDEST => src_TDEST_int_regslice,
-        empty_14 => trunc_ln96_reg_416,
-        add_ln104 => add_ln104_reg_421,
-        y_dst_TDATA => grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TDATA,
-        y_dst_TVALID => grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TVALID,
-        y_dst_TKEEP => grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TKEEP,
-        y_dst_TSTRB => grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TSTRB,
-        y_dst_TUSER => grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TUSER,
-        y_dst_TLAST => grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TLAST,
-        y_dst_TID => grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TID,
-        y_dst_TDEST => grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TDEST,
-        empty => trunc_ln78_reg_448,
-        icmp_ln110 => icmp_ln80_reg_442,
-        uv_dst_TDATA => grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TDATA,
-        uv_dst_TVALID => grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TVALID,
-        uv_dst_TKEEP => grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TKEEP,
-        uv_dst_TSTRB => grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TSTRB,
-        uv_dst_TUSER => grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TUSER,
-        uv_dst_TLAST => grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TLAST,
-        uv_dst_TID => grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TID,
-        uv_dst_TDEST => grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TDEST,
-        add_ln144 => add_ln144_reg_426,
-        uv_user_sent_2_out => grp_video_preprocess_Pipeline_col_loop_fu_182_uv_user_sent_2_out,
-        uv_user_sent_2_out_ap_vld => grp_video_preprocess_Pipeline_col_loop_fu_182_uv_user_sent_2_out_ap_vld,
-        left_b_3_out_i => left_b_fu_140,
-        left_b_3_out_o => grp_video_preprocess_Pipeline_col_loop_fu_182_left_b_3_out_o,
-        left_b_3_out_o_ap_vld => grp_video_preprocess_Pipeline_col_loop_fu_182_left_b_3_out_o_ap_vld,
-        left_g_3_out_i => left_g_fu_136,
-        left_g_3_out_o => grp_video_preprocess_Pipeline_col_loop_fu_182_left_g_3_out_o,
-        left_g_3_out_o_ap_vld => grp_video_preprocess_Pipeline_col_loop_fu_182_left_g_3_out_o_ap_vld,
-        left_r_3_out_i => left_r_fu_132,
-        left_r_3_out_o => grp_video_preprocess_Pipeline_col_loop_fu_182_left_r_3_out_o,
-        left_r_3_out_o_ap_vld => grp_video_preprocess_Pipeline_col_loop_fu_182_left_r_3_out_o_ap_vld);
-
     control_s_axi_U : component video_preprocess_control_s_axi
     generic map (
         C_S_AXI_ADDR_WIDTH => C_S_AXI_CONTROL_ADDR_WIDTH,
@@ -496,740 +380,245 @@ begin
         ap_done => ap_done,
         ap_idle => ap_idle);
 
-    regslice_both_src_V_data_V_U : component video_preprocess_regslice_both
-    generic map (
-        DataWidth => 24)
+    entry_proc_U0 : component video_preprocess_entry_proc
     port map (
         ap_clk => ap_clk,
         ap_rst => ap_rst_n_inv,
-        data_in => src_TDATA,
-        vld_in => src_TVALID,
-        ack_in => regslice_both_src_V_data_V_U_ack_in,
-        data_out => src_TDATA_int_regslice,
-        vld_out => src_TVALID_int_regslice,
-        ack_out => src_TREADY_int_regslice,
-        apdone_blk => regslice_both_src_V_data_V_U_apdone_blk);
+        ap_start => entry_proc_U0_ap_start,
+        ap_done => entry_proc_U0_ap_done,
+        ap_continue => entry_proc_U0_ap_continue,
+        ap_idle => entry_proc_U0_ap_idle,
+        ap_ready => entry_proc_U0_ap_ready,
+        input_is_bgr => input_is_bgr,
+        input_is_bgr_c_din => entry_proc_U0_input_is_bgr_c_din,
+        input_is_bgr_c_full_n => input_is_bgr_c_full_n,
+        input_is_bgr_c_write => entry_proc_U0_input_is_bgr_c_write,
+        input_is_bgr_c_num_data_valid => input_is_bgr_c_num_data_valid,
+        input_is_bgr_c_fifo_cap => input_is_bgr_c_fifo_cap);
 
-    regslice_both_src_V_keep_V_U : component video_preprocess_regslice_both
-    generic map (
-        DataWidth => 3)
+    Block_entry_proc_U0 : component video_preprocess_Block_entry_proc
     port map (
         ap_clk => ap_clk,
         ap_rst => ap_rst_n_inv,
-        data_in => src_TKEEP,
-        vld_in => src_TVALID,
-        ack_in => regslice_both_src_V_keep_V_U_ack_in,
-        data_out => src_TKEEP_int_regslice,
-        vld_out => regslice_both_src_V_keep_V_U_vld_out,
-        ack_out => src_TREADY_int_regslice,
-        apdone_blk => regslice_both_src_V_keep_V_U_apdone_blk);
+        ap_start => Block_entry_proc_U0_ap_start,
+        ap_done => Block_entry_proc_U0_ap_done,
+        ap_continue => Block_entry_proc_U0_ap_continue,
+        ap_idle => Block_entry_proc_U0_ap_idle,
+        ap_ready => Block_entry_proc_U0_ap_ready,
+        rows => rows,
+        cols => cols,
+        ap_return_0 => Block_entry_proc_U0_ap_return_0,
+        ap_return_1 => Block_entry_proc_U0_ap_return_1,
+        ap_return_2 => Block_entry_proc_U0_ap_return_2,
+        ap_return_3 => Block_entry_proc_U0_ap_return_3);
 
-    regslice_both_src_V_strb_V_U : component video_preprocess_regslice_both
-    generic map (
-        DataWidth => 3)
+    Loop_row_loop_proc_U0 : component video_preprocess_Loop_row_loop_proc
     port map (
         ap_clk => ap_clk,
         ap_rst => ap_rst_n_inv,
-        data_in => src_TSTRB,
-        vld_in => src_TVALID,
-        ack_in => regslice_both_src_V_strb_V_U_ack_in,
-        data_out => src_TSTRB_int_regslice,
-        vld_out => regslice_both_src_V_strb_V_U_vld_out,
-        ack_out => src_TREADY_int_regslice,
-        apdone_blk => regslice_both_src_V_strb_V_U_apdone_blk);
+        ap_start => Loop_row_loop_proc_U0_ap_start,
+        ap_done => Loop_row_loop_proc_U0_ap_done,
+        ap_continue => Loop_row_loop_proc_U0_ap_continue,
+        ap_idle => Loop_row_loop_proc_U0_ap_idle,
+        ap_ready => Loop_row_loop_proc_U0_ap_ready,
+        p_read => proc_rows_0_loc_channel_dout,
+        p_read1 => sub126_loc_channel_dout,
+        p_read2 => sub_loc_channel_dout,
+        p_read3 => proc_cols_0_loc_channel_dout,
+        input_is_bgr_dout => input_is_bgr_c_dout,
+        input_is_bgr_empty_n => input_is_bgr_c_empty_n,
+        input_is_bgr_read => Loop_row_loop_proc_U0_input_is_bgr_read,
+        input_is_bgr_num_data_valid => input_is_bgr_c_num_data_valid,
+        input_is_bgr_fifo_cap => input_is_bgr_c_fifo_cap,
+        src_TDATA => src_TDATA,
+        src_TVALID => src_TVALID,
+        src_TREADY => Loop_row_loop_proc_U0_src_TREADY,
+        src_TKEEP => src_TKEEP,
+        src_TSTRB => src_TSTRB,
+        src_TUSER => src_TUSER,
+        src_TLAST => src_TLAST,
+        src_TID => src_TID,
+        src_TDEST => src_TDEST,
+        y_dst_TDATA => Loop_row_loop_proc_U0_y_dst_TDATA,
+        y_dst_TVALID => Loop_row_loop_proc_U0_y_dst_TVALID,
+        y_dst_TREADY => y_dst_TREADY,
+        y_dst_TKEEP => Loop_row_loop_proc_U0_y_dst_TKEEP,
+        y_dst_TSTRB => Loop_row_loop_proc_U0_y_dst_TSTRB,
+        y_dst_TUSER => Loop_row_loop_proc_U0_y_dst_TUSER,
+        y_dst_TLAST => Loop_row_loop_proc_U0_y_dst_TLAST,
+        y_dst_TID => Loop_row_loop_proc_U0_y_dst_TID,
+        y_dst_TDEST => Loop_row_loop_proc_U0_y_dst_TDEST,
+        uv_dst_TDATA => Loop_row_loop_proc_U0_uv_dst_TDATA,
+        uv_dst_TVALID => Loop_row_loop_proc_U0_uv_dst_TVALID,
+        uv_dst_TREADY => uv_dst_TREADY,
+        uv_dst_TKEEP => Loop_row_loop_proc_U0_uv_dst_TKEEP,
+        uv_dst_TSTRB => Loop_row_loop_proc_U0_uv_dst_TSTRB,
+        uv_dst_TUSER => Loop_row_loop_proc_U0_uv_dst_TUSER,
+        uv_dst_TLAST => Loop_row_loop_proc_U0_uv_dst_TLAST,
+        uv_dst_TID => Loop_row_loop_proc_U0_uv_dst_TID,
+        uv_dst_TDEST => Loop_row_loop_proc_U0_uv_dst_TDEST);
 
-    regslice_both_src_V_user_V_U : component video_preprocess_regslice_both
-    generic map (
-        DataWidth => 1)
+    input_is_bgr_c_U : component video_preprocess_fifo_w8_d3_S
     port map (
-        ap_clk => ap_clk,
-        ap_rst => ap_rst_n_inv,
-        data_in => src_TUSER,
-        vld_in => src_TVALID,
-        ack_in => regslice_both_src_V_user_V_U_ack_in,
-        data_out => src_TUSER_int_regslice,
-        vld_out => regslice_both_src_V_user_V_U_vld_out,
-        ack_out => src_TREADY_int_regslice,
-        apdone_blk => regslice_both_src_V_user_V_U_apdone_blk);
+        clk => ap_clk,
+        reset => ap_rst_n_inv,
+        if_read_ce => ap_const_logic_1,
+        if_write_ce => ap_const_logic_1,
+        if_din => entry_proc_U0_input_is_bgr_c_din,
+        if_full_n => input_is_bgr_c_full_n,
+        if_write => entry_proc_U0_input_is_bgr_c_write,
+        if_dout => input_is_bgr_c_dout,
+        if_empty_n => input_is_bgr_c_empty_n,
+        if_read => Loop_row_loop_proc_U0_input_is_bgr_read,
+        if_num_data_valid => input_is_bgr_c_num_data_valid,
+        if_fifo_cap => input_is_bgr_c_fifo_cap);
 
-    regslice_both_src_V_last_V_U : component video_preprocess_regslice_both
-    generic map (
-        DataWidth => 1)
+    proc_rows_0_loc_channel_U : component video_preprocess_fifo_w10_d2_S
     port map (
-        ap_clk => ap_clk,
-        ap_rst => ap_rst_n_inv,
-        data_in => src_TLAST,
-        vld_in => src_TVALID,
-        ack_in => regslice_both_src_V_last_V_U_ack_in,
-        data_out => src_TLAST_int_regslice,
-        vld_out => regslice_both_src_V_last_V_U_vld_out,
-        ack_out => src_TREADY_int_regslice,
-        apdone_blk => regslice_both_src_V_last_V_U_apdone_blk);
+        clk => ap_clk,
+        reset => ap_rst_n_inv,
+        if_read_ce => ap_const_logic_1,
+        if_write_ce => ap_const_logic_1,
+        if_din => Block_entry_proc_U0_ap_return_0,
+        if_full_n => proc_rows_0_loc_channel_full_n,
+        if_write => ap_channel_done_sub126_loc_channel,
+        if_dout => proc_rows_0_loc_channel_dout,
+        if_empty_n => proc_rows_0_loc_channel_empty_n,
+        if_read => Loop_row_loop_proc_U0_ap_ready,
+        if_num_data_valid => proc_rows_0_loc_channel_num_data_valid,
+        if_fifo_cap => proc_rows_0_loc_channel_fifo_cap);
 
-    regslice_both_src_V_id_V_U : component video_preprocess_regslice_both
-    generic map (
-        DataWidth => 1)
+    proc_cols_0_loc_channel_U : component video_preprocess_fifo_w11_d2_S
     port map (
-        ap_clk => ap_clk,
-        ap_rst => ap_rst_n_inv,
-        data_in => src_TID,
-        vld_in => src_TVALID,
-        ack_in => regslice_both_src_V_id_V_U_ack_in,
-        data_out => src_TID_int_regslice,
-        vld_out => regslice_both_src_V_id_V_U_vld_out,
-        ack_out => src_TREADY_int_regslice,
-        apdone_blk => regslice_both_src_V_id_V_U_apdone_blk);
+        clk => ap_clk,
+        reset => ap_rst_n_inv,
+        if_read_ce => ap_const_logic_1,
+        if_write_ce => ap_const_logic_1,
+        if_din => Block_entry_proc_U0_ap_return_1,
+        if_full_n => proc_cols_0_loc_channel_full_n,
+        if_write => ap_channel_done_sub126_loc_channel,
+        if_dout => proc_cols_0_loc_channel_dout,
+        if_empty_n => proc_cols_0_loc_channel_empty_n,
+        if_read => Loop_row_loop_proc_U0_ap_ready,
+        if_num_data_valid => proc_cols_0_loc_channel_num_data_valid,
+        if_fifo_cap => proc_cols_0_loc_channel_fifo_cap);
 
-    regslice_both_src_V_dest_V_U : component video_preprocess_regslice_both
-    generic map (
-        DataWidth => 1)
+    sub_loc_channel_U : component video_preprocess_fifo_w12_d2_S
     port map (
-        ap_clk => ap_clk,
-        ap_rst => ap_rst_n_inv,
-        data_in => src_TDEST,
-        vld_in => src_TVALID,
-        ack_in => regslice_both_src_V_dest_V_U_ack_in,
-        data_out => src_TDEST_int_regslice,
-        vld_out => regslice_both_src_V_dest_V_U_vld_out,
-        ack_out => src_TREADY_int_regslice,
-        apdone_blk => regslice_both_src_V_dest_V_U_apdone_blk);
+        clk => ap_clk,
+        reset => ap_rst_n_inv,
+        if_read_ce => ap_const_logic_1,
+        if_write_ce => ap_const_logic_1,
+        if_din => Block_entry_proc_U0_ap_return_2,
+        if_full_n => sub_loc_channel_full_n,
+        if_write => ap_channel_done_sub126_loc_channel,
+        if_dout => sub_loc_channel_dout,
+        if_empty_n => sub_loc_channel_empty_n,
+        if_read => Loop_row_loop_proc_U0_ap_ready,
+        if_num_data_valid => sub_loc_channel_num_data_valid,
+        if_fifo_cap => sub_loc_channel_fifo_cap);
 
-    regslice_both_y_dst_V_data_V_U : component video_preprocess_regslice_both
-    generic map (
-        DataWidth => 8)
+    sub126_loc_channel_U : component video_preprocess_fifo_w12_d2_S
     port map (
-        ap_clk => ap_clk,
-        ap_rst => ap_rst_n_inv,
-        data_in => y_dst_TDATA_int_regslice,
-        vld_in => grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TVALID,
-        ack_in => y_dst_TREADY_int_regslice,
-        data_out => y_dst_TDATA,
-        vld_out => regslice_both_y_dst_V_data_V_U_vld_out,
-        ack_out => y_dst_TREADY,
-        apdone_blk => regslice_both_y_dst_V_data_V_U_apdone_blk);
-
-    regslice_both_y_dst_V_keep_V_U : component video_preprocess_regslice_both
-    generic map (
-        DataWidth => 1)
-    port map (
-        ap_clk => ap_clk,
-        ap_rst => ap_rst_n_inv,
-        data_in => y_dst_TKEEP_int_regslice,
-        vld_in => grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TVALID,
-        ack_in => regslice_both_y_dst_V_keep_V_U_ack_in_dummy,
-        data_out => y_dst_TKEEP,
-        vld_out => regslice_both_y_dst_V_keep_V_U_vld_out,
-        ack_out => y_dst_TREADY,
-        apdone_blk => regslice_both_y_dst_V_keep_V_U_apdone_blk);
-
-    regslice_both_y_dst_V_strb_V_U : component video_preprocess_regslice_both
-    generic map (
-        DataWidth => 1)
-    port map (
-        ap_clk => ap_clk,
-        ap_rst => ap_rst_n_inv,
-        data_in => y_dst_TSTRB_int_regslice,
-        vld_in => grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TVALID,
-        ack_in => regslice_both_y_dst_V_strb_V_U_ack_in_dummy,
-        data_out => y_dst_TSTRB,
-        vld_out => regslice_both_y_dst_V_strb_V_U_vld_out,
-        ack_out => y_dst_TREADY,
-        apdone_blk => regslice_both_y_dst_V_strb_V_U_apdone_blk);
-
-    regslice_both_y_dst_V_user_V_U : component video_preprocess_regslice_both
-    generic map (
-        DataWidth => 1)
-    port map (
-        ap_clk => ap_clk,
-        ap_rst => ap_rst_n_inv,
-        data_in => y_dst_TUSER_int_regslice,
-        vld_in => grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TVALID,
-        ack_in => regslice_both_y_dst_V_user_V_U_ack_in_dummy,
-        data_out => y_dst_TUSER,
-        vld_out => regslice_both_y_dst_V_user_V_U_vld_out,
-        ack_out => y_dst_TREADY,
-        apdone_blk => regslice_both_y_dst_V_user_V_U_apdone_blk);
-
-    regslice_both_y_dst_V_last_V_U : component video_preprocess_regslice_both
-    generic map (
-        DataWidth => 1)
-    port map (
-        ap_clk => ap_clk,
-        ap_rst => ap_rst_n_inv,
-        data_in => y_dst_TLAST_int_regslice,
-        vld_in => grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TVALID,
-        ack_in => regslice_both_y_dst_V_last_V_U_ack_in_dummy,
-        data_out => y_dst_TLAST,
-        vld_out => regslice_both_y_dst_V_last_V_U_vld_out,
-        ack_out => y_dst_TREADY,
-        apdone_blk => regslice_both_y_dst_V_last_V_U_apdone_blk);
-
-    regslice_both_y_dst_V_id_V_U : component video_preprocess_regslice_both
-    generic map (
-        DataWidth => 1)
-    port map (
-        ap_clk => ap_clk,
-        ap_rst => ap_rst_n_inv,
-        data_in => y_dst_TID_int_regslice,
-        vld_in => grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TVALID,
-        ack_in => regslice_both_y_dst_V_id_V_U_ack_in_dummy,
-        data_out => y_dst_TID,
-        vld_out => regslice_both_y_dst_V_id_V_U_vld_out,
-        ack_out => y_dst_TREADY,
-        apdone_blk => regslice_both_y_dst_V_id_V_U_apdone_blk);
-
-    regslice_both_y_dst_V_dest_V_U : component video_preprocess_regslice_both
-    generic map (
-        DataWidth => 1)
-    port map (
-        ap_clk => ap_clk,
-        ap_rst => ap_rst_n_inv,
-        data_in => y_dst_TDEST_int_regslice,
-        vld_in => grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TVALID,
-        ack_in => regslice_both_y_dst_V_dest_V_U_ack_in_dummy,
-        data_out => y_dst_TDEST,
-        vld_out => regslice_both_y_dst_V_dest_V_U_vld_out,
-        ack_out => y_dst_TREADY,
-        apdone_blk => regslice_both_y_dst_V_dest_V_U_apdone_blk);
-
-    regslice_both_uv_dst_V_data_V_U : component video_preprocess_regslice_both
-    generic map (
-        DataWidth => 8)
-    port map (
-        ap_clk => ap_clk,
-        ap_rst => ap_rst_n_inv,
-        data_in => uv_dst_TDATA_int_regslice,
-        vld_in => grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TVALID,
-        ack_in => uv_dst_TREADY_int_regslice,
-        data_out => uv_dst_TDATA,
-        vld_out => regslice_both_uv_dst_V_data_V_U_vld_out,
-        ack_out => uv_dst_TREADY,
-        apdone_blk => regslice_both_uv_dst_V_data_V_U_apdone_blk);
-
-    regslice_both_uv_dst_V_keep_V_U : component video_preprocess_regslice_both
-    generic map (
-        DataWidth => 1)
-    port map (
-        ap_clk => ap_clk,
-        ap_rst => ap_rst_n_inv,
-        data_in => uv_dst_TKEEP_int_regslice,
-        vld_in => grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TVALID,
-        ack_in => regslice_both_uv_dst_V_keep_V_U_ack_in_dummy,
-        data_out => uv_dst_TKEEP,
-        vld_out => regslice_both_uv_dst_V_keep_V_U_vld_out,
-        ack_out => uv_dst_TREADY,
-        apdone_blk => regslice_both_uv_dst_V_keep_V_U_apdone_blk);
-
-    regslice_both_uv_dst_V_strb_V_U : component video_preprocess_regslice_both
-    generic map (
-        DataWidth => 1)
-    port map (
-        ap_clk => ap_clk,
-        ap_rst => ap_rst_n_inv,
-        data_in => uv_dst_TSTRB_int_regslice,
-        vld_in => grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TVALID,
-        ack_in => regslice_both_uv_dst_V_strb_V_U_ack_in_dummy,
-        data_out => uv_dst_TSTRB,
-        vld_out => regslice_both_uv_dst_V_strb_V_U_vld_out,
-        ack_out => uv_dst_TREADY,
-        apdone_blk => regslice_both_uv_dst_V_strb_V_U_apdone_blk);
-
-    regslice_both_uv_dst_V_user_V_U : component video_preprocess_regslice_both
-    generic map (
-        DataWidth => 1)
-    port map (
-        ap_clk => ap_clk,
-        ap_rst => ap_rst_n_inv,
-        data_in => uv_dst_TUSER_int_regslice,
-        vld_in => grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TVALID,
-        ack_in => regslice_both_uv_dst_V_user_V_U_ack_in_dummy,
-        data_out => uv_dst_TUSER,
-        vld_out => regslice_both_uv_dst_V_user_V_U_vld_out,
-        ack_out => uv_dst_TREADY,
-        apdone_blk => regslice_both_uv_dst_V_user_V_U_apdone_blk);
-
-    regslice_both_uv_dst_V_last_V_U : component video_preprocess_regslice_both
-    generic map (
-        DataWidth => 1)
-    port map (
-        ap_clk => ap_clk,
-        ap_rst => ap_rst_n_inv,
-        data_in => uv_dst_TLAST_int_regslice,
-        vld_in => grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TVALID,
-        ack_in => regslice_both_uv_dst_V_last_V_U_ack_in_dummy,
-        data_out => uv_dst_TLAST,
-        vld_out => regslice_both_uv_dst_V_last_V_U_vld_out,
-        ack_out => uv_dst_TREADY,
-        apdone_blk => regslice_both_uv_dst_V_last_V_U_apdone_blk);
-
-    regslice_both_uv_dst_V_id_V_U : component video_preprocess_regslice_both
-    generic map (
-        DataWidth => 1)
-    port map (
-        ap_clk => ap_clk,
-        ap_rst => ap_rst_n_inv,
-        data_in => uv_dst_TID_int_regslice,
-        vld_in => grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TVALID,
-        ack_in => regslice_both_uv_dst_V_id_V_U_ack_in_dummy,
-        data_out => uv_dst_TID,
-        vld_out => regslice_both_uv_dst_V_id_V_U_vld_out,
-        ack_out => uv_dst_TREADY,
-        apdone_blk => regslice_both_uv_dst_V_id_V_U_apdone_blk);
-
-    regslice_both_uv_dst_V_dest_V_U : component video_preprocess_regslice_both
-    generic map (
-        DataWidth => 1)
-    port map (
-        ap_clk => ap_clk,
-        ap_rst => ap_rst_n_inv,
-        data_in => uv_dst_TDEST_int_regslice,
-        vld_in => grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TVALID,
-        ack_in => regslice_both_uv_dst_V_dest_V_U_ack_in_dummy,
-        data_out => uv_dst_TDEST,
-        vld_out => regslice_both_uv_dst_V_dest_V_U_vld_out,
-        ack_out => uv_dst_TREADY,
-        apdone_blk => regslice_both_uv_dst_V_dest_V_U_apdone_blk);
+        clk => ap_clk,
+        reset => ap_rst_n_inv,
+        if_read_ce => ap_const_logic_1,
+        if_write_ce => ap_const_logic_1,
+        if_din => Block_entry_proc_U0_ap_return_3,
+        if_full_n => sub126_loc_channel_full_n,
+        if_write => ap_channel_done_sub126_loc_channel,
+        if_dout => sub126_loc_channel_dout,
+        if_empty_n => sub126_loc_channel_empty_n,
+        if_read => Loop_row_loop_proc_U0_ap_ready,
+        if_num_data_valid => sub126_loc_channel_num_data_valid,
+        if_fifo_cap => sub126_loc_channel_fifo_cap);
 
 
 
 
 
-    ap_CS_fsm_assign_proc : process(ap_clk)
+    ap_sync_reg_Block_entry_proc_U0_ap_ready_assign_proc : process(ap_clk)
     begin
         if (ap_clk'event and ap_clk =  '1') then
             if (ap_rst_n_inv = '1') then
-                ap_CS_fsm <= ap_ST_fsm_state1;
+                ap_sync_reg_Block_entry_proc_U0_ap_ready <= ap_const_logic_0;
             else
-                ap_CS_fsm <= ap_NS_fsm;
-            end if;
-        end if;
-    end process;
-
-
-    grp_video_preprocess_Pipeline_col_loop_fu_182_ap_start_reg_assign_proc : process(ap_clk)
-    begin
-        if (ap_clk'event and ap_clk =  '1') then
-            if (ap_rst_n_inv = '1') then
-                grp_video_preprocess_Pipeline_col_loop_fu_182_ap_start_reg <= ap_const_logic_0;
-            else
-                if ((ap_const_logic_1 = ap_CS_fsm_state3)) then 
-                    grp_video_preprocess_Pipeline_col_loop_fu_182_ap_start_reg <= ap_const_logic_1;
-                elsif ((grp_video_preprocess_Pipeline_col_loop_fu_182_ap_ready = ap_const_logic_1)) then 
-                    grp_video_preprocess_Pipeline_col_loop_fu_182_ap_start_reg <= ap_const_logic_0;
+                if (((ap_sync_ready and ap_start) = ap_const_logic_1)) then 
+                    ap_sync_reg_Block_entry_proc_U0_ap_ready <= ap_const_logic_0;
+                else 
+                    ap_sync_reg_Block_entry_proc_U0_ap_ready <= ap_sync_Block_entry_proc_U0_ap_ready;
                 end if; 
             end if;
         end if;
     end process;
 
 
-    left_b_fu_140_assign_proc : process (ap_clk)
+    ap_sync_reg_channel_write_sub126_loc_channel_assign_proc : process(ap_clk)
     begin
-        if (ap_clk'event and ap_clk = '1') then
-            if (((ap_const_logic_1 = ap_CS_fsm_state1) and (ap_start = ap_const_logic_1))) then 
-                left_b_fu_140 <= ap_const_lv8_0;
-            elsif (((ap_const_logic_1 = ap_CS_fsm_state4) and (grp_video_preprocess_Pipeline_col_loop_fu_182_left_b_3_out_o_ap_vld = ap_const_logic_1))) then 
-                left_b_fu_140 <= grp_video_preprocess_Pipeline_col_loop_fu_182_left_b_3_out_o;
-            end if; 
-        end if;
-    end process;
-
-    left_g_fu_136_assign_proc : process (ap_clk)
-    begin
-        if (ap_clk'event and ap_clk = '1') then
-            if (((ap_const_logic_1 = ap_CS_fsm_state1) and (ap_start = ap_const_logic_1))) then 
-                left_g_fu_136 <= ap_const_lv8_0;
-            elsif (((ap_const_logic_1 = ap_CS_fsm_state4) and (grp_video_preprocess_Pipeline_col_loop_fu_182_left_g_3_out_o_ap_vld = ap_const_logic_1))) then 
-                left_g_fu_136 <= grp_video_preprocess_Pipeline_col_loop_fu_182_left_g_3_out_o;
-            end if; 
-        end if;
-    end process;
-
-    left_r_fu_132_assign_proc : process (ap_clk)
-    begin
-        if (ap_clk'event and ap_clk = '1') then
-            if (((ap_const_logic_1 = ap_CS_fsm_state1) and (ap_start = ap_const_logic_1))) then 
-                left_r_fu_132 <= ap_const_lv8_0;
-            elsif (((ap_const_logic_1 = ap_CS_fsm_state4) and (grp_video_preprocess_Pipeline_col_loop_fu_182_left_r_3_out_o_ap_vld = ap_const_logic_1))) then 
-                left_r_fu_132 <= grp_video_preprocess_Pipeline_col_loop_fu_182_left_r_3_out_o;
-            end if; 
-        end if;
-    end process;
-
-    r_fu_144_assign_proc : process (ap_clk)
-    begin
-        if (ap_clk'event and ap_clk = '1') then
-            if (((ap_const_logic_1 = ap_CS_fsm_state1) and (ap_start = ap_const_logic_1))) then 
-                r_fu_144 <= ap_const_lv10_0;
-            elsif ((ap_const_logic_1 = ap_CS_fsm_state5)) then 
-                r_fu_144 <= r_3_reg_437;
-            end if; 
-        end if;
-    end process;
-
-    uv_user_sent_reg_170_assign_proc : process (ap_clk)
-    begin
-        if (ap_clk'event and ap_clk = '1') then
-            if ((ap_const_logic_1 = ap_CS_fsm_state5)) then 
-                uv_user_sent_reg_170 <= grp_video_preprocess_Pipeline_col_loop_fu_182_uv_user_sent_2_out;
-            elsif (((ap_const_logic_1 = ap_CS_fsm_state1) and (ap_start = ap_const_logic_1))) then 
-                uv_user_sent_reg_170 <= ap_const_lv1_0;
-            end if; 
-        end if;
-    end process;
-    process (ap_clk)
-    begin
-        if (ap_clk'event and ap_clk = '1') then
-            if ((ap_const_logic_1 = ap_CS_fsm_state1)) then
-                add_ln104_reg_421 <= add_ln104_fu_306_p2;
-                    add_ln144_reg_426(11 downto 1) <= add_ln144_fu_312_p2(11 downto 1);
-                proc_cols_reg_411 <= proc_cols_fu_268_p3;
-                proc_rows_reg_406 <= proc_rows_fu_250_p3;
-                trunc_ln96_reg_416 <= trunc_ln96_fu_302_p1;
+        if (ap_clk'event and ap_clk =  '1') then
+            if (ap_rst_n_inv = '1') then
+                ap_sync_reg_channel_write_sub126_loc_channel <= ap_const_logic_0;
+            else
+                if (((Block_entry_proc_U0_ap_done and Block_entry_proc_U0_ap_continue) = ap_const_logic_1)) then 
+                    ap_sync_reg_channel_write_sub126_loc_channel <= ap_const_logic_0;
+                else 
+                    ap_sync_reg_channel_write_sub126_loc_channel <= ap_sync_channel_write_sub126_loc_channel;
+                end if; 
             end if;
         end if;
     end process;
-    process (ap_clk)
+
+
+    ap_sync_reg_entry_proc_U0_ap_ready_assign_proc : process(ap_clk)
     begin
-        if (ap_clk'event and ap_clk = '1') then
-            if ((ap_const_logic_1 = ap_CS_fsm_state2)) then
-                icmp_ln80_reg_442 <= icmp_ln80_fu_352_p2;
-                r_3_reg_437 <= r_3_fu_346_p2;
+        if (ap_clk'event and ap_clk =  '1') then
+            if (ap_rst_n_inv = '1') then
+                ap_sync_reg_entry_proc_U0_ap_ready <= ap_const_logic_0;
+            else
+                if (((ap_sync_ready and ap_start) = ap_const_logic_1)) then 
+                    ap_sync_reg_entry_proc_U0_ap_ready <= ap_const_logic_0;
+                else 
+                    ap_sync_reg_entry_proc_U0_ap_ready <= ap_sync_entry_proc_U0_ap_ready;
+                end if; 
             end if;
         end if;
     end process;
-    process (ap_clk)
-    begin
-        if (ap_clk'event and ap_clk = '1') then
-            if ((ap_const_logic_1 = ap_CS_fsm_state3)) then
-                trunc_ln78_reg_448 <= trunc_ln78_fu_358_p1;
-                uv_user_sent_1_reg_453 <= uv_user_sent_1_fu_362_p2;
-            end if;
-        end if;
-    end process;
-    process (ap_clk)
-    begin
-        if (ap_clk'event and ap_clk = '1') then
-            if (((ap_const_logic_1 = ap_CS_fsm_state4) and (grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TVALID = ap_const_logic_1))) then
-                uv_dst_TDATA_reg <= grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TDATA;
-                uv_dst_TDEST_reg <= grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TDEST;
-                uv_dst_TID_reg <= grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TID;
-                uv_dst_TKEEP_reg <= grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TKEEP;
-                uv_dst_TLAST_reg <= grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TLAST;
-                uv_dst_TSTRB_reg <= grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TSTRB;
-                uv_dst_TUSER_reg <= grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TUSER;
-            end if;
-        end if;
-    end process;
-    process (ap_clk)
-    begin
-        if (ap_clk'event and ap_clk = '1') then
-            if (((ap_const_logic_1 = ap_CS_fsm_state4) and (grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TVALID = ap_const_logic_1))) then
-                y_dst_TDATA_reg <= grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TDATA;
-                y_dst_TDEST_reg <= grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TDEST;
-                y_dst_TID_reg <= grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TID;
-                y_dst_TKEEP_reg <= grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TKEEP;
-                y_dst_TLAST_reg <= grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TLAST;
-                y_dst_TSTRB_reg <= grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TSTRB;
-                y_dst_TUSER_reg <= grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TUSER;
-            end if;
-        end if;
-    end process;
-    add_ln144_reg_426(0) <= '1';
 
-    ap_NS_fsm_assign_proc : process (ap_start, ap_CS_fsm, ap_CS_fsm_state1, ap_CS_fsm_state2, grp_video_preprocess_Pipeline_col_loop_fu_182_ap_done, ap_CS_fsm_state4, icmp_ln78_fu_341_p2, ap_CS_fsm_state6, ap_block_state6)
-    begin
-        case ap_CS_fsm is
-            when ap_ST_fsm_state1 => 
-                if (((ap_const_logic_1 = ap_CS_fsm_state1) and (ap_start = ap_const_logic_1))) then
-                    ap_NS_fsm <= ap_ST_fsm_state2;
-                else
-                    ap_NS_fsm <= ap_ST_fsm_state1;
-                end if;
-            when ap_ST_fsm_state2 => 
-                if (((icmp_ln78_fu_341_p2 = ap_const_lv1_1) and (ap_const_logic_1 = ap_CS_fsm_state2))) then
-                    ap_NS_fsm <= ap_ST_fsm_state6;
-                else
-                    ap_NS_fsm <= ap_ST_fsm_state3;
-                end if;
-            when ap_ST_fsm_state3 => 
-                ap_NS_fsm <= ap_ST_fsm_state4;
-            when ap_ST_fsm_state4 => 
-                if (((grp_video_preprocess_Pipeline_col_loop_fu_182_ap_done = ap_const_logic_1) and (ap_const_logic_1 = ap_CS_fsm_state4))) then
-                    ap_NS_fsm <= ap_ST_fsm_state5;
-                else
-                    ap_NS_fsm <= ap_ST_fsm_state4;
-                end if;
-            when ap_ST_fsm_state5 => 
-                ap_NS_fsm <= ap_ST_fsm_state2;
-            when ap_ST_fsm_state6 => 
-                if (((ap_const_boolean_0 = ap_block_state6) and (ap_const_logic_1 = ap_CS_fsm_state6))) then
-                    ap_NS_fsm <= ap_ST_fsm_state1;
-                else
-                    ap_NS_fsm <= ap_ST_fsm_state6;
-                end if;
-            when others =>  
-                ap_NS_fsm <= "XXXXXX";
-        end case;
-    end process;
-    add_ln104_fu_306_p2 <= std_logic_vector(unsigned(zext_ln58_fu_276_p1) + unsigned(ap_const_lv12_FFF));
-    add_ln144_fu_312_p2 <= std_logic_vector(unsigned(zext_ln71_fu_298_p1) + unsigned(ap_const_lv12_FFF));
-    ap_CS_fsm_state1 <= ap_CS_fsm(0);
-    ap_CS_fsm_state2 <= ap_CS_fsm(1);
-    ap_CS_fsm_state3 <= ap_CS_fsm(2);
-    ap_CS_fsm_state4 <= ap_CS_fsm(3);
-    ap_CS_fsm_state5 <= ap_CS_fsm(4);
-    ap_CS_fsm_state6 <= ap_CS_fsm(5);
-
-    ap_ST_fsm_state1_blk_assign_proc : process(ap_start)
-    begin
-        if ((ap_start = ap_const_logic_0)) then 
-            ap_ST_fsm_state1_blk <= ap_const_logic_1;
-        else 
-            ap_ST_fsm_state1_blk <= ap_const_logic_0;
-        end if; 
-    end process;
-
-    ap_ST_fsm_state2_blk <= ap_const_logic_0;
-    ap_ST_fsm_state3_blk <= ap_const_logic_0;
-
-    ap_ST_fsm_state4_blk_assign_proc : process(grp_video_preprocess_Pipeline_col_loop_fu_182_ap_done)
-    begin
-        if ((grp_video_preprocess_Pipeline_col_loop_fu_182_ap_done = ap_const_logic_0)) then 
-            ap_ST_fsm_state4_blk <= ap_const_logic_1;
-        else 
-            ap_ST_fsm_state4_blk <= ap_const_logic_0;
-        end if; 
-    end process;
-
-    ap_ST_fsm_state5_blk <= ap_const_logic_0;
-
-    ap_ST_fsm_state6_blk_assign_proc : process(ap_block_state6)
-    begin
-        if ((ap_const_boolean_1 = ap_block_state6)) then 
-            ap_ST_fsm_state6_blk <= ap_const_logic_1;
-        else 
-            ap_ST_fsm_state6_blk <= ap_const_logic_0;
-        end if; 
-    end process;
-
-
-    ap_block_state6_assign_proc : process(regslice_both_y_dst_V_data_V_U_apdone_blk, regslice_both_uv_dst_V_data_V_U_apdone_blk)
-    begin
-                ap_block_state6 <= ((regslice_both_uv_dst_V_data_V_U_apdone_blk = ap_const_logic_1) or (regslice_both_y_dst_V_data_V_U_apdone_blk = ap_const_logic_1));
-    end process;
-
-
-    ap_done_assign_proc : process(ap_CS_fsm_state6, ap_block_state6)
-    begin
-        if (((ap_const_boolean_0 = ap_block_state6) and (ap_const_logic_1 = ap_CS_fsm_state6))) then 
-            ap_done <= ap_const_logic_1;
-        else 
-            ap_done <= ap_const_logic_0;
-        end if; 
-    end process;
-
-
-    ap_idle_assign_proc : process(ap_start, ap_CS_fsm_state1)
-    begin
-        if (((ap_const_logic_1 = ap_CS_fsm_state1) and (ap_start = ap_const_logic_0))) then 
-            ap_idle <= ap_const_logic_1;
-        else 
-            ap_idle <= ap_const_logic_0;
-        end if; 
-    end process;
-
-
-    ap_ready_assign_proc : process(ap_CS_fsm_state6, ap_block_state6)
-    begin
-        if (((ap_const_boolean_0 = ap_block_state6) and (ap_const_logic_1 = ap_CS_fsm_state6))) then 
-            ap_ready <= ap_const_logic_1;
-        else 
-            ap_ready <= ap_const_logic_0;
-        end if; 
-    end process;
-
+    Block_entry_proc_U0_ap_continue <= ap_sync_channel_write_sub126_loc_channel;
+    Block_entry_proc_U0_ap_start <= ((ap_sync_reg_Block_entry_proc_U0_ap_ready xor ap_const_logic_1) and ap_start and ap_const_logic_1);
+    Loop_row_loop_proc_U0_ap_continue <= ap_const_logic_1;
+    Loop_row_loop_proc_U0_ap_start <= proc_rows_0_loc_channel_empty_n;
+    ap_channel_done_sub126_loc_channel <= ((ap_sync_reg_channel_write_sub126_loc_channel xor ap_const_logic_1) and Block_entry_proc_U0_ap_done);
+    ap_done <= Loop_row_loop_proc_U0_ap_done;
+    ap_idle <= ((proc_rows_0_loc_channel_empty_n xor ap_const_logic_1) and entry_proc_U0_ap_idle and Loop_row_loop_proc_U0_ap_idle and Block_entry_proc_U0_ap_idle);
+    ap_ready <= ap_sync_ready;
 
     ap_rst_n_inv_assign_proc : process(ap_rst_n)
     begin
                 ap_rst_n_inv <= not(ap_rst_n);
     end process;
 
-    even_cols_fu_290_p3 <= (tmp_1_fu_280_p4 & ap_const_lv1_0);
-    grp_video_preprocess_Pipeline_col_loop_fu_182_ap_start <= grp_video_preprocess_Pipeline_col_loop_fu_182_ap_start_reg;
-    grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TREADY <= (uv_dst_TREADY_int_regslice and ap_CS_fsm_state4);
-    grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TREADY <= (y_dst_TREADY_int_regslice and ap_CS_fsm_state4);
-    icmp_ln60_fu_240_p2 <= "1" when (unsigned(rows) > unsigned(ap_const_lv16_2D0)) else "0";
-    icmp_ln66_fu_258_p2 <= "1" when (unsigned(cols) > unsigned(ap_const_lv16_500)) else "0";
-    icmp_ln78_fu_341_p2 <= "1" when (r_fu_144 = proc_rows_reg_406) else "0";
-    icmp_ln80_fu_352_p2 <= "0" when (r_fu_144 = ap_const_lv10_0) else "1";
-    proc_cols_fu_268_p3 <= 
-        ap_const_lv11_500 when (icmp_ln66_fu_258_p2(0) = '1') else 
-        trunc_ln58_1_fu_264_p1;
-    proc_rows_fu_250_p3 <= 
-        ap_const_lv10_2D0 when (icmp_ln60_fu_240_p2(0) = '1') else 
-        trunc_ln58_fu_246_p1;
-    r_3_fu_346_p2 <= std_logic_vector(unsigned(r_fu_144) + unsigned(ap_const_lv10_1));
-    src_TREADY <= regslice_both_src_V_data_V_U_ack_in;
-
-    src_TREADY_int_regslice_assign_proc : process(grp_video_preprocess_Pipeline_col_loop_fu_182_src_TREADY, ap_CS_fsm_state4)
-    begin
-        if ((ap_const_logic_1 = ap_CS_fsm_state4)) then 
-            src_TREADY_int_regslice <= grp_video_preprocess_Pipeline_col_loop_fu_182_src_TREADY;
-        else 
-            src_TREADY_int_regslice <= ap_const_logic_0;
-        end if; 
-    end process;
-
-    tmp_1_fu_280_p4 <= proc_cols_fu_268_p3(10 downto 1);
-    trunc_ln58_1_fu_264_p1 <= cols(11 - 1 downto 0);
-    trunc_ln58_fu_246_p1 <= rows(10 - 1 downto 0);
-    trunc_ln78_fu_358_p1 <= r_fu_144(1 - 1 downto 0);
-    trunc_ln96_fu_302_p1 <= input_is_bgr(1 - 1 downto 0);
-
-    uv_dst_TDATA_int_regslice_assign_proc : process(grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TDATA, grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TVALID, ap_CS_fsm_state4, uv_dst_TDATA_reg)
-    begin
-        if (((ap_const_logic_1 = ap_CS_fsm_state4) and (grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TVALID = ap_const_logic_1))) then 
-            uv_dst_TDATA_int_regslice <= grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TDATA;
-        else 
-            uv_dst_TDATA_int_regslice <= uv_dst_TDATA_reg;
-        end if; 
-    end process;
-
-
-    uv_dst_TDEST_int_regslice_assign_proc : process(grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TVALID, grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TDEST, ap_CS_fsm_state4, uv_dst_TDEST_reg)
-    begin
-        if (((ap_const_logic_1 = ap_CS_fsm_state4) and (grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TVALID = ap_const_logic_1))) then 
-            uv_dst_TDEST_int_regslice <= grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TDEST;
-        else 
-            uv_dst_TDEST_int_regslice <= uv_dst_TDEST_reg;
-        end if; 
-    end process;
-
-
-    uv_dst_TID_int_regslice_assign_proc : process(grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TVALID, grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TID, ap_CS_fsm_state4, uv_dst_TID_reg)
-    begin
-        if (((ap_const_logic_1 = ap_CS_fsm_state4) and (grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TVALID = ap_const_logic_1))) then 
-            uv_dst_TID_int_regslice <= grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TID;
-        else 
-            uv_dst_TID_int_regslice <= uv_dst_TID_reg;
-        end if; 
-    end process;
-
-
-    uv_dst_TKEEP_int_regslice_assign_proc : process(grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TVALID, grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TKEEP, ap_CS_fsm_state4, uv_dst_TKEEP_reg)
-    begin
-        if (((ap_const_logic_1 = ap_CS_fsm_state4) and (grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TVALID = ap_const_logic_1))) then 
-            uv_dst_TKEEP_int_regslice <= grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TKEEP;
-        else 
-            uv_dst_TKEEP_int_regslice <= uv_dst_TKEEP_reg;
-        end if; 
-    end process;
-
-
-    uv_dst_TLAST_int_regslice_assign_proc : process(grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TVALID, grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TLAST, ap_CS_fsm_state4, uv_dst_TLAST_reg)
-    begin
-        if (((ap_const_logic_1 = ap_CS_fsm_state4) and (grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TVALID = ap_const_logic_1))) then 
-            uv_dst_TLAST_int_regslice <= grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TLAST;
-        else 
-            uv_dst_TLAST_int_regslice <= uv_dst_TLAST_reg;
-        end if; 
-    end process;
-
-
-    uv_dst_TSTRB_int_regslice_assign_proc : process(grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TVALID, grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TSTRB, ap_CS_fsm_state4, uv_dst_TSTRB_reg)
-    begin
-        if (((ap_const_logic_1 = ap_CS_fsm_state4) and (grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TVALID = ap_const_logic_1))) then 
-            uv_dst_TSTRB_int_regslice <= grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TSTRB;
-        else 
-            uv_dst_TSTRB_int_regslice <= uv_dst_TSTRB_reg;
-        end if; 
-    end process;
-
-
-    uv_dst_TUSER_int_regslice_assign_proc : process(grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TVALID, grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TUSER, ap_CS_fsm_state4, uv_dst_TUSER_reg)
-    begin
-        if (((ap_const_logic_1 = ap_CS_fsm_state4) and (grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TVALID = ap_const_logic_1))) then 
-            uv_dst_TUSER_int_regslice <= grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TUSER;
-        else 
-            uv_dst_TUSER_int_regslice <= uv_dst_TUSER_reg;
-        end if; 
-    end process;
-
-    uv_dst_TVALID <= regslice_both_uv_dst_V_data_V_U_vld_out;
-    uv_dst_TVALID_int_regslice <= grp_video_preprocess_Pipeline_col_loop_fu_182_uv_dst_TVALID;
-    uv_user_sent_1_fu_362_p2 <= (uv_user_sent_reg_170 and icmp_ln80_reg_442);
-
-    y_dst_TDATA_int_regslice_assign_proc : process(grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TDATA, grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TVALID, ap_CS_fsm_state4, y_dst_TDATA_reg)
-    begin
-        if (((ap_const_logic_1 = ap_CS_fsm_state4) and (grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TVALID = ap_const_logic_1))) then 
-            y_dst_TDATA_int_regslice <= grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TDATA;
-        else 
-            y_dst_TDATA_int_regslice <= y_dst_TDATA_reg;
-        end if; 
-    end process;
-
-
-    y_dst_TDEST_int_regslice_assign_proc : process(grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TVALID, grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TDEST, ap_CS_fsm_state4, y_dst_TDEST_reg)
-    begin
-        if (((ap_const_logic_1 = ap_CS_fsm_state4) and (grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TVALID = ap_const_logic_1))) then 
-            y_dst_TDEST_int_regslice <= grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TDEST;
-        else 
-            y_dst_TDEST_int_regslice <= y_dst_TDEST_reg;
-        end if; 
-    end process;
-
-
-    y_dst_TID_int_regslice_assign_proc : process(grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TVALID, grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TID, ap_CS_fsm_state4, y_dst_TID_reg)
-    begin
-        if (((ap_const_logic_1 = ap_CS_fsm_state4) and (grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TVALID = ap_const_logic_1))) then 
-            y_dst_TID_int_regslice <= grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TID;
-        else 
-            y_dst_TID_int_regslice <= y_dst_TID_reg;
-        end if; 
-    end process;
-
-
-    y_dst_TKEEP_int_regslice_assign_proc : process(grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TVALID, grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TKEEP, ap_CS_fsm_state4, y_dst_TKEEP_reg)
-    begin
-        if (((ap_const_logic_1 = ap_CS_fsm_state4) and (grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TVALID = ap_const_logic_1))) then 
-            y_dst_TKEEP_int_regslice <= grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TKEEP;
-        else 
-            y_dst_TKEEP_int_regslice <= y_dst_TKEEP_reg;
-        end if; 
-    end process;
-
-
-    y_dst_TLAST_int_regslice_assign_proc : process(grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TVALID, grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TLAST, ap_CS_fsm_state4, y_dst_TLAST_reg)
-    begin
-        if (((ap_const_logic_1 = ap_CS_fsm_state4) and (grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TVALID = ap_const_logic_1))) then 
-            y_dst_TLAST_int_regslice <= grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TLAST;
-        else 
-            y_dst_TLAST_int_regslice <= y_dst_TLAST_reg;
-        end if; 
-    end process;
-
-
-    y_dst_TSTRB_int_regslice_assign_proc : process(grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TVALID, grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TSTRB, ap_CS_fsm_state4, y_dst_TSTRB_reg)
-    begin
-        if (((ap_const_logic_1 = ap_CS_fsm_state4) and (grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TVALID = ap_const_logic_1))) then 
-            y_dst_TSTRB_int_regslice <= grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TSTRB;
-        else 
-            y_dst_TSTRB_int_regslice <= y_dst_TSTRB_reg;
-        end if; 
-    end process;
-
-
-    y_dst_TUSER_int_regslice_assign_proc : process(grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TVALID, grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TUSER, ap_CS_fsm_state4, y_dst_TUSER_reg)
-    begin
-        if (((ap_const_logic_1 = ap_CS_fsm_state4) and (grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TVALID = ap_const_logic_1))) then 
-            y_dst_TUSER_int_regslice <= grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TUSER;
-        else 
-            y_dst_TUSER_int_regslice <= y_dst_TUSER_reg;
-        end if; 
-    end process;
-
-    y_dst_TVALID <= regslice_both_y_dst_V_data_V_U_vld_out;
-    y_dst_TVALID_int_regslice <= grp_video_preprocess_Pipeline_col_loop_fu_182_y_dst_TVALID;
-    zext_ln58_fu_276_p1 <= std_logic_vector(IEEE.numeric_std.resize(unsigned(proc_cols_fu_268_p3),12));
-    zext_ln71_fu_298_p1 <= std_logic_vector(IEEE.numeric_std.resize(unsigned(even_cols_fu_290_p3),12));
+    ap_sync_Block_entry_proc_U0_ap_ready <= (ap_sync_reg_Block_entry_proc_U0_ap_ready or Block_entry_proc_U0_ap_ready);
+    ap_sync_channel_write_sub126_loc_channel <= ((sub126_loc_channel_full_n and ap_channel_done_sub126_loc_channel) or ap_sync_reg_channel_write_sub126_loc_channel);
+    ap_sync_entry_proc_U0_ap_ready <= (entry_proc_U0_ap_ready or ap_sync_reg_entry_proc_U0_ap_ready);
+    ap_sync_ready <= (ap_sync_entry_proc_U0_ap_ready and ap_sync_Block_entry_proc_U0_ap_ready);
+    entry_proc_U0_ap_continue <= ap_const_logic_1;
+    entry_proc_U0_ap_start <= ((ap_sync_reg_entry_proc_U0_ap_ready xor ap_const_logic_1) and ap_start and ap_const_logic_1);
+    src_TREADY <= Loop_row_loop_proc_U0_src_TREADY;
+    uv_dst_TDATA <= Loop_row_loop_proc_U0_uv_dst_TDATA;
+    uv_dst_TDEST <= Loop_row_loop_proc_U0_uv_dst_TDEST;
+    uv_dst_TID <= Loop_row_loop_proc_U0_uv_dst_TID;
+    uv_dst_TKEEP <= Loop_row_loop_proc_U0_uv_dst_TKEEP;
+    uv_dst_TLAST <= Loop_row_loop_proc_U0_uv_dst_TLAST;
+    uv_dst_TSTRB <= Loop_row_loop_proc_U0_uv_dst_TSTRB;
+    uv_dst_TUSER <= Loop_row_loop_proc_U0_uv_dst_TUSER;
+    uv_dst_TVALID <= Loop_row_loop_proc_U0_uv_dst_TVALID;
+    y_dst_TDATA <= Loop_row_loop_proc_U0_y_dst_TDATA;
+    y_dst_TDEST <= Loop_row_loop_proc_U0_y_dst_TDEST;
+    y_dst_TID <= Loop_row_loop_proc_U0_y_dst_TID;
+    y_dst_TKEEP <= Loop_row_loop_proc_U0_y_dst_TKEEP;
+    y_dst_TLAST <= Loop_row_loop_proc_U0_y_dst_TLAST;
+    y_dst_TSTRB <= Loop_row_loop_proc_U0_y_dst_TSTRB;
+    y_dst_TUSER <= Loop_row_loop_proc_U0_y_dst_TUSER;
+    y_dst_TVALID <= Loop_row_loop_proc_U0_y_dst_TVALID;
 end behav;
