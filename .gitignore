@@ -1,54 +1,41 @@
 ```
-# Build artifacts
+# Compiled and build artifacts
 *.o
 *.obj
-*.a
-*.so
-*.dll
 *.exe
+*.dll
+*.so
+*.a
 *.out
-
-# HLS/Vivado specific
-*.prj
-*.xpr
-*.srcs/
-*.runs/
-*.sim/
-*.hw/
-*.ip_user_files/
-*.cache/
-*.gen/
-
-# Simulation and synthesis outputs
-*.pb
-*.bin
-*.mcs
-*.bit
-*.elf
-
-# Temp files
-*.tmp
-*.log
-*~
-.\#*
-\#*\#
+build/
+dist/
+target/
 
 # Dependencies
 node_modules/
-.venv/
 venv/
+.venv/
 __pycache__/
-*.pyc
-*.pyo
-*.pyd
+.mypy_cache/
+.pytest_cache/
+.gradle/
 
-# IDE
-.vscode/
-.idea/
+# Logs and temp files
+*.log
+*.tmp
 *.swp
 *.swo
 
-# OS
+# Environment
+.env
+.env.local
+*.env.*
+
+# Editors
+.vscode/
+.idea/
+
+# System files
 .DS_Store
 Thumbs.db
 
@@ -57,8 +44,23 @@ coverage/
 htmlcov/
 .coverage
 
-# Distribution
-dist/
-build/
-target/
+# Compressed files
+*.zip
+*.gz
+*.tar
+*.tgz
+*.bz2
+*.xz
+*.7z
+*.rar
+*.zst
+*.lz4
+*.lzh
+*.cab
+*.arj
+*.rpm
+*.deb
+*.Z
+*.lz
+*.lzo
 ```
