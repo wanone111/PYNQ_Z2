@@ -33,9 +33,6 @@ int main() {
     const int WB_B_GAIN = 256;   // 1.0x
     const int GAMMA_MODE = GAMMA_MODE_BYPASS;
     const int DENOISE_STRENGTH = 0;
-    const int GRAY_EN = 0;
-    const int THRESHOLD_EN = 0;
-    const int THRESHOLD_VAL = 128;
     const int INPUT_IS_BGR = 0;  // RGB input
 
     // Generate test input pattern (gradient)
@@ -75,9 +72,6 @@ int main() {
         WB_B_GAIN,
         GAMMA_MODE,
         DENOISE_STRENGTH,
-        GRAY_EN,
-        THRESHOLD_EN,
-        THRESHOLD_VAL,
         INPUT_IS_BGR
     );
 

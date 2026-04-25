@@ -1,118 +1,97 @@
-# Video Preprocess HLS IP - Unified ISP + ROI + RGB2YUV
+# Video Preprocess HLS IP - 中文说明
 
-## Overview
+## 概述
 
-This HLS IP integrates three video processing stages into a single optimized module for PYNQ-Z2:
+这是一个面向 PYNQ-Z2 的 HLS 视频预处理 IP，当前主功能是：
 
-1. **Lightweight ISP**: White Balance → Gamma Correction → Denoising
-2. **Dynamic ROI**: Pixel-level gating based on externally controlled ROI coordinates
-3. **RGB to YUV420SP (NV12)**: Color space conversion with 2x2 chroma subsampling
+1. 轻量 ISP 处理：白平衡、Gamma 校正、去噪
+2. 动态 ROI：根据外部参数对指定区域内像素进行处理
+3. AXI4-Stream 输出：为后续视频链路提供标准流接口
 
-## Architecture
+RGB/BGR 到 YUV420SP（NV12）的颜色空间转换细节已拆分到独立文档：
+[RGB2YUV 说明](README_RGB2YUV.md)
 
+## 处理流程
+
+```text
+输入 RGB/BGR 视频流
+    ↓
+白平衡
+    ↓
+Gamma 校正
+    ↓
+去噪
+    ↓
+ROI 门控（ROI 外像素清零）
+    ↓
+输出 AXI4-Stream
 ```
-Input (RGB/BGR) 
-    ↓
-[White Balance] → [Gamma Correction] → [Denoise] (ISP Stage, ROI-gated)
-    ↓
-[ROI Masking] (zero outside ROI)
-    ↓
-[RGB→YUV Conversion] (parallel DSP48-based)
-    ↓
-[2x2 Chroma Subsampling] (NV12 output)
-    ↓
-Output: Y Stream + UV Stream (interleaved)
-```
 
-## Features
+## 特性
 
-- **AXI4-Stream Interface**: Compatible with Xilinx video pipelines
-- **S_AXILITE Control**: Runtime configuration of all parameters
-- **DATAFLOW Optimization**: Task-level parallelism for throughput
-- **SRL Line Buffers**: 1-cycle access latency for 2x2 averaging
-- **DSP48 Utilization**: Parallel YUV calculation for 15-25% latency reduction
-- **128-byte Alignment Ready**: Output formatted for efficient UDP encapsulation
+- AXI4-Stream 接口，适合接入 Xilinx 视频管线
+- S_AXILITE 控制口，运行时可配置分辨率、ROI 和 ISP 参数
+- DATAFLOW 和流水线优化，提升吞吐率
+- 线缓冲与 BRAM 存储，适合 HLS 综合
 
-## Parameters
+## 参数
 
-| Parameter | Type | Description | Range |
-|-----------|------|-------------|-------|
-| `rows` | ap_uint<16> | Frame height | 1-720 |
-| `cols` | ap_uint<16> | Frame width | 1-1280 |
-| `roi_x` | ap_uint<16> | ROI top-left X | 0-cols-1 |
-| `roi_y` | ap_uint<16> | ROI top-left Y | 0-rows-1 |
-| `roi_w` | ap_uint<16> | ROI width | 1-cols |
-| `roi_h` | ap_uint<16> | ROI height | 1-rows |
-| `wb_r_gain` | ap_uint<16> | White balance R gain (Q8) | 0-65535 (256=1.0x) |
-| `wb_g_gain` | ap_uint<16> | White balance G gain (Q8) | 0-65535 |
-| `wb_b_gain` | ap_uint<16> | White balance B gain (Q8) | 0-65535 |
-| `gamma_mode` | ap_uint<8> | Gamma mode | 0=BYPASS, 1=BRIGHT, 2=DARK, 3=DARK_STRONG |
-| `denoise_strength` | ap_uint<8> | Temporal denoise strength | 0-255 |
-| `gray_en` | ap_uint<8> | Grayscale output enable | 0/1 |
-| `threshold_en` | ap_uint<8> | Binary threshold enable | 0/1 |
-| `threshold_val` | ap_uint<8> | Threshold value | 0-255 |
-| `input_is_bgr` | ap_uint<8> | Input format | 0=RGB, 1=BGR |
+| 参数 | 类型 | 说明 | 取值范围 |
+| --- | --- | --- | --- |
+| `rows` | ap_uint<16> | 帧高 | 1-720 |
+| `cols` | ap_uint<16> | 帧宽 | 1-1280 |
+| `roi_x` | ap_uint<16> | ROI 左上角 X 坐标 | 0-cols-1 |
+| `roi_y` | ap_uint<16> | ROI 左上角 Y 坐标 | 0-rows-1 |
+| `roi_w` | ap_uint<16> | ROI 宽度 | 1-cols |
+| `roi_h` | ap_uint<16> | ROI 高度 | 1-rows |
+| `wb_r_gain` | ap_uint<16> | 白平衡 R 增益（Q8） | 0-65535，256 表示 1.0x |
+| `wb_g_gain` | ap_uint<16> | 白平衡 G 增益（Q8） | 0-65535 |
+| `wb_b_gain` | ap_uint<16> | 白平衡 B 增益（Q8） | 0-65535 |
+| `gamma_mode` | ap_uint<8> | Gamma 模式 | 0=BYPASS，1=BRIGHT，2=DARK，3=DARK_STRONG |
+| `denoise_strength` | ap_uint<8> | 去噪强度 | 0-255 |
+| `input_is_bgr` | ap_uint<8> | 输入格式 | 0=RGB，1=BGR |
 
-## Resource Estimates (1280x720 @ 100MHz)
+## 资源与性能
 
-- **LUT**: ~8,000-12,000
-- **FF**: ~6,000-9,000
-- **BRAM**: ~10-15 (line buffers)
-- **DSP48**: ~6-9 (parallel YUV calculation)
-- **Latency**: ~2-3 rows (pipeline fill)
-- **Throughput**: 1 pixel/cycle (II=1)
+以下为设计目标级别的估算值，实际结果以 HLS 综合报告为准：
 
-## Build Instructions
+- LUT：约 8,000 - 12,000
+- FF：约 6,000 - 9,000
+- BRAM：约 10 - 15
+- DSP48：约 6 - 9
+- 延迟：约 2 - 3 行
+- 吞吐率：1 像素 / 时钟周期（II=1）
 
-### Prerequisites
-- Vivado HLS 2020.2 or later
-- Vitis HLS 2021.1 or later (recommended)
+## 构建说明
 
-### Run Synthesis
+### 环境要求
+
+- Vivado HLS 2020.2 或更高版本
+- Vitis HLS 2021.1 或更高版本
+
+### 运行综合
+
 ```bash
 cd /workspace/hls/video_preprocess
-vivado_hls -f scripts/run_hls.tcl
+vitis-run --mode hls --tcl scripts/run_hls.tcl
 ```
 
-### Run C Simulation (Optional)
+### 运行 C 仿真
+
 ```bash
-vivado_hls -f scripts/run_hls.tcl
-# Uncomment csim_design in the TCL script first
+vitis-run --mode hls --tcl scripts/run_hls.tcl
 ```
 
-### Export as IP Catalog
+### 导出 IP
+
 ```bash
-# Uncomment export_design in run_hls.tcl
-vivado_hls -f scripts/run_hls.tcl
+vitis-run --mode hls --tcl scripts/run_hls.tcl
 ```
 
-## Integration with PYNQ
+## 集成说明
 
-1. After HLS synthesis, export the IP catalog
-2. Create Vivado block design with:
-   - Zynq PS7 (M_AXI_GP0 for video input, M_AXI_GP1 for output)
-   - AXI DMA (for stream-to-memory transfer)
-   - video_preprocess IP
-   - AXI Interconnect
-3. Generate bitstream and export XSA
-4. Use PYNQ Python overlay to configure and control
+综合完成后，可以将该 IP 接入 Vivado Block Design，与 Zynq PS、AXI DMA 和后续视频处理模块组合使用。
 
-## Output Format
-
-The IP outputs YUV420SP (NV12) format:
-- **Y Stream**: Full resolution luma (rows × cols pixels)
-- **UV Stream**: Interleaved chroma at half resolution ((rows/2) × cols bytes)
-  - U and V alternate: U0, V0, U1, V1, ...
-  - TLAST marks end of each UV row
-
-## Next Steps
-
-This integrated IP is ready for:
-1. UDP encapsulation module (to be added)
-2. Control stream receiver (for dynamic ROI updates from 310B)
-3. AXI DMA integration for memory-mapped I/O
-4. PYNQ Python overlay development
-
-## License
+## 许可证
 
 MIT License

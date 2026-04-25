@@ -1,6 +1,7 @@
 #include "top.h"
 #include "isp.h"
 #include "roi.h"
+#include "rgb2yuv.h"
 #include <cstdint>
 
 // ============================================================================
@@ -18,37 +19,6 @@
 // - Zero-overhead ROI checks using pre-computed boundaries
 // ============================================================================
 
-// Unpack RGB/BGR pixel based on input format flag
-static inline void unpack_rgb(ap_uint<24> pix, ap_uint<1> input_is_bgr, 
-                               ap_uint<8>& r, ap_uint<8>& g, ap_uint<8>& b) {
-#pragma HLS INLINE
-    ap_uint<8> ch0 = pix.range(7, 0);
-    ap_uint<8> ch1 = pix.range(15, 8);
-    ap_uint<8> ch2 = pix.range(23, 16);
-    r = input_is_bgr ? ch2 : ch0;  // BGR: ch0=B, ch1=G, ch2=R -> swap R and B
-    g = ch1;
-    b = input_is_bgr ? ch0 : ch2;
-}
-
-// Parallel YUV calculation using DSP48 for single-cycle throughput
-static inline void calc_yuv_parallel(ap_uint<8> r, ap_uint<8> g, ap_uint<8> b,
-                                      ap_uint<8>& y_out, ap_uint<8>& u_out, ap_uint<8>& v_out) {
-#pragma HLS INLINE
-#pragma HLS PIPELINE II=1
-
-    // Y calculation: Y = 0.299R + 0.587G + 0.114B
-    int32_t y_acc = CSC_Y_R_COEF * (int32_t)r + CSC_Y_G_COEF * (int32_t)g + CSC_Y_B_COEF * (int32_t)b + CSC_Y_OFFSET;
-    y_out = saturate((y_acc + 128) >> 8);
-
-    // U calculation: U = -0.169R - 0.331G + 0.500B + 128
-    int32_t u_acc = CSC_U_R_COEF * (int32_t)r + CSC_U_G_COEF * (int32_t)g + CSC_U_B_COEF * (int32_t)b + CSC_U_OFFSET;
-    u_out = saturate((u_acc + 128) >> 8);
-
-    // V calculation: V = 0.500R - 0.419G - 0.081B + 128
-    int32_t v_acc = CSC_V_R_COEF * (int32_t)r + CSC_V_G_COEF * (int32_t)g + CSC_V_B_COEF * (int32_t)b + CSC_V_OFFSET;
-    v_out = saturate((v_acc + 128) >> 8);
-}
-
 void video_preprocess(
     hls::stream<axi_rgb_t>& src,
     hls::stream<axi_u8_t>& y_dst,
@@ -64,9 +34,6 @@ void video_preprocess(
     ap_uint<16> wb_b_gain,
     ap_uint<8> gamma_mode,
     ap_uint<8> denoise_strength,
-    ap_uint<8> gray_en,
-    ap_uint<8> threshold_en,
-    ap_uint<8> threshold_val,
     ap_uint<8> input_is_bgr) {
 
 #pragma HLS INTERFACE axis port=src
@@ -83,9 +50,6 @@ void video_preprocess(
 #pragma HLS INTERFACE s_axilite port=wb_b_gain bundle=control
 #pragma HLS INTERFACE s_axilite port=gamma_mode bundle=control
 #pragma HLS INTERFACE s_axilite port=denoise_strength bundle=control
-#pragma HLS INTERFACE s_axilite port=gray_en bundle=control
-#pragma HLS INTERFACE s_axilite port=threshold_en bundle=control
-#pragma HLS INTERFACE s_axilite port=threshold_val bundle=control
 #pragma HLS INTERFACE s_axilite port=input_is_bgr bundle=control
 #pragma HLS INTERFACE s_axilite port=return bundle=control
 
@@ -183,25 +147,9 @@ ROW_LOOP:
                 prev_denoise_b = isp_b;
                 prev_valid = true;
 
-                // Optional grayscale/threshold output
-                if (gray_en) {
-                    ap_uint<16> y_temp = (ap_uint<16>)isp_r * 77 + (ap_uint<16>)isp_g * 150 + (ap_uint<16>)isp_b * 29;
-                    ap_uint<8> gray = (ap_uint<8>)(y_temp >> 8);
-                    if (threshold_en) {
-                        ap_uint<8> bin = (gray > threshold_val) ? (ap_uint<8>)255 : (ap_uint<8>)0;
-                        out_r = bin;
-                        out_g = bin;
-                        out_b = bin;
-                    } else {
-                        out_r = gray;
-                        out_g = gray;
-                        out_b = gray;
-                    }
-                } else {
-                    out_r = isp_r;
-                    out_g = isp_g;
-                    out_b = isp_b;
-                }
+                out_r = isp_r;
+                out_g = isp_g;
+                out_b = isp_b;
             } else {
                 // Outside ROI: clear output and reset denoise state
                 prev_valid = false;

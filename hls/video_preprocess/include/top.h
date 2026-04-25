@@ -41,9 +41,6 @@ void video_preprocess(
     ap_uint<16> wb_b_gain,            // White balance B gain (Q8: 256=1.0x)
     ap_uint<8> gamma_mode,            // Gamma mode: 0=BYPASS, 1=BRIGHT, 2=DARK, 3=DARK_STRONG
     ap_uint<8> denoise_strength,      // Denoise strength: 0-255
-    ap_uint<8> gray_en,               // Enable grayscale output (1=enabled)
-    ap_uint<8> threshold_en,          // Enable binary thresholding (1=enabled)
-    ap_uint<8> threshold_val,         // Threshold value for binarization (0-255)
     ap_uint<8> input_is_bgr           // Input format: 1=BGR, 0=RGB
 );
 

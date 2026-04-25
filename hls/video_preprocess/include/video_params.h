@@ -74,11 +74,6 @@ struct VideoControl {
     ap_uint<16> wb_b_gain;
     ap_uint<8> gamma_mode;    // Use GAMMA_MODE_* constants
     ap_uint<8> denoise_strength; // 0-255, higher = more smoothing
-
-    // Output format control
-    ap_uint<8> gray_en;       // Enable grayscale output
-    ap_uint<8> threshold_en;  // Enable binary thresholding
-    ap_uint<8> threshold_val; // Threshold value for binarization
     
     // Input format control
     ap_uint<8> input_is_bgr;  // 1 = BGR input, 0 = RGB input
