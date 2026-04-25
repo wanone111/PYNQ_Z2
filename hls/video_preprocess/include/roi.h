@@ -19,12 +19,40 @@ static inline RoiWindow pack_roi_window(ap_uint<16> rows,
     RoiWindow roi;
 
     // Clamp dimensions to valid range
-    ap_uint<16> safe_rows = (rows > MAX_HEIGHT) ? MAX_HEIGHT : ((rows == 0) ? 1 : rows);
-    ap_uint<16> safe_cols = (cols > MAX_WIDTH) ? MAX_WIDTH : ((cols == 0) ? 1 : cols);
+    ap_uint<16> safe_rows;
+    ap_uint<16> safe_cols;
+
+    if (rows == 0) {
+        safe_rows = ap_uint<16>(1);
+    } else if (rows > ap_uint<16>(MAX_HEIGHT)) {
+        safe_rows = ap_uint<16>(MAX_HEIGHT);
+    } else {
+        safe_rows = rows;
+    }
+
+    if (cols == 0) {
+        safe_cols = ap_uint<16>(1);
+    } else if (cols > ap_uint<16>(MAX_WIDTH)) {
+        safe_cols = ap_uint<16>(MAX_WIDTH);
+    } else {
+        safe_cols = cols;
+    }
 
     // Clamp ROI origin to frame bounds
-    roi.x0 = (roi_x >= safe_cols) ? (safe_cols - 1) : roi_x;
-    roi.y0 = (roi_y >= safe_rows) ? (safe_rows - 1) : roi_y;
+    ap_uint<16> max_x0 = safe_cols - ap_uint<16>(1);
+    ap_uint<16> max_y0 = safe_rows - ap_uint<16>(1);
+
+    if (roi_x >= safe_cols) {
+        roi.x0 = max_x0;
+    } else {
+        roi.x0 = roi_x;
+    }
+
+    if (roi_y >= safe_rows) {
+        roi.y0 = max_y0;
+    } else {
+        roi.y0 = roi_y;
+    }
 
     // Handle zero width/height by using full frame
     ap_uint<16> w = (roi_w == 0) ? safe_cols : roi_w;

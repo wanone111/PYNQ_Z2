@@ -72,8 +72,21 @@ void video_preprocess(
     RoiWindow roi = pack_roi_window(rows, cols, roi_x, roi_y, roi_w, roi_h);
 
     // Clamp dimensions to maximum supported size
-    int proc_rows = (rows > MAX_HEIGHT) ? MAX_HEIGHT : rows;
-    int proc_cols = (cols > MAX_WIDTH) ? MAX_WIDTH : cols;
+    int proc_rows;
+    int proc_cols;
+
+    if (rows > ap_uint<16>(MAX_HEIGHT)) {
+        proc_rows = MAX_HEIGHT;
+    } else {
+        proc_rows = (int)rows;
+    }
+
+    if (cols > ap_uint<16>(MAX_WIDTH)) {
+        proc_cols = MAX_WIDTH;
+    } else {
+        proc_cols = (int)cols;
+    }
+
     int even_cols = (proc_cols >> 1) << 1;  // Round down to even number
 
     // State variables for 2x2 chroma averaging
